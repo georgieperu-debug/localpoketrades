@@ -43,7 +43,7 @@ function toSummary(card: ApiCard): CardSummary {
 export async function searchCards(query: string, pageSize = 20): Promise<CardSummary[]> {
   const res = await axios.get<{ data: ApiCard[] }>(`${BASE_URL}/cards`, {
     headers: headers(),
-    params: { q: `name:"*${query}*"`, pageSize },
+    params: { q: `name:*${query}*`, pageSize },
     timeout: 10000,
   });
   return res.data.data.map(toSummary);
