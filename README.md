@@ -71,8 +71,9 @@ the full flow below; app typechecks). Known gaps before this is real:
   app) once there's real usage to justify it.
 - **No payments/escrow, no grading integration** — both explicitly deferred
   to Phase 2 per the original plan.
-- **No app icon/splash assets**, `assets/icon.png` referenced in `app.json`
-  doesn't exist yet.
+- **No splash screen asset** — the app icon (`app/assets/icon.png`, the
+  TrainerTrade badge mark) is in place, but `app.json`'s splash screen is
+  still just a solid background colour with no logo image on it.
 - A real async-error bug was caught and fixed during scaffolding: Express 4
   doesn't forward a rejected promise from an `async` route handler to error
   middleware by default, so an unhandled rejection (e.g. an external API
