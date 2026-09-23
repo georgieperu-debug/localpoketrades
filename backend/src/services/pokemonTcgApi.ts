@@ -33,6 +33,8 @@ export interface CardSummary {
   name: string;
   setName: string;
   imageUrl: string;
+  /** Higher-res image, for detail/zoomed views — the "small" imageUrl looks blurry scaled up. */
+  imageUrlLarge: string;
   marketPrice: number | null;
 }
 
@@ -55,6 +57,7 @@ function toSummary(card: ApiCard): CardSummary {
     name: card.name,
     setName: card.set?.name ?? "Unknown set",
     imageUrl: card.images?.small ?? "",
+    imageUrlLarge: card.images?.large ?? card.images?.small ?? "",
     marketPrice,
   };
 }

@@ -24,6 +24,7 @@ export interface CardListingRow {
   card_name: string;
   set_name: string;
   image_url: string;
+  image_url_large: string;
   market_price: number | null;
   condition: string | null;
   added_at: string;

@@ -30,10 +30,10 @@ listingsRouter.post("/", async (req: AuthedRequest, res) => {
 
   try {
     const info = prepare(
-        `INSERT INTO card_listings (user_id, list_type, card_id, card_name, set_name, image_url, market_price, condition)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+        `INSERT INTO card_listings (user_id, list_type, card_id, card_name, set_name, image_url, image_url_large, market_price, condition)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
-      .run(req.userId, listType, card.id, card.name, card.setName, card.imageUrl, card.marketPrice, condition ?? null);
+      .run(req.userId, listType, card.id, card.name, card.setName, card.imageUrl, card.imageUrlLarge, card.marketPrice, condition ?? null);
     const row = prepare(`SELECT * FROM card_listings WHERE id = ?`).get(info.lastInsertRowid);
     res.status(201).json(row);
   } catch (err) {

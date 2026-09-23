@@ -58,8 +58,12 @@ export function CardListsScreen() {
         <TouchableOpacity style={styles.backButton} onPress={() => setViewingCard(null)}>
           <Text style={styles.backButtonText}>{"< Back"}</Text>
         </TouchableOpacity>
-        {!!viewingCard.image_url && (
-          <Image source={{ uri: viewingCard.image_url }} style={styles.detailImage} resizeMode="contain" />
+        {!!(viewingCard.image_url_large || viewingCard.image_url) && (
+          <Image
+            source={{ uri: viewingCard.image_url_large || viewingCard.image_url }}
+            style={styles.detailImage}
+            resizeMode="contain"
+          />
         )}
         <Text style={styles.detailName}>{viewingCard.card_name}</Text>
         <Text style={styles.detailSet}>{viewingCard.set_name}</Text>
