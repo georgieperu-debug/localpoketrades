@@ -10,6 +10,7 @@ export function CardListsScreen() {
   const [results, setResults] = useState<CardSummary[]>([]);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [viewingCard, setViewingCard] = useState<CardListing | null>(null);
 
   const loadListings = useCallback(async () => {
     const rows = await getListings(listType);
@@ -50,6 +51,24 @@ export function CardListsScreen() {
     await removeListing(id);
     await loadListings();
   };
+
+  if (viewingCard) {
+    return (
+      <View style={styles.detailContainer}>
+        <TouchableOpacity style={styles.backButton} onPress={() => setViewingCard(null)}>
+          <Text style={styles.backButtonText}>{"< Back"}</Text>
+        </TouchableOpacity>
+        {!!viewingCard.image_url && (
+          <Image source={{ uri: viewingCard.image_url }} style={styles.detailImage} resizeMode="contain" />
+        )}
+        <Text style={styles.detailName}>{viewingCard.card_name}</Text>
+        <Text style={styles.detailSet}>{viewingCard.set_name}</Text>
+        {viewingCard.market_price != null && (
+          <Text style={styles.detailPrice}>~£{viewingCard.market_price.toFixed(2)}</Text>
+        )}
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -95,7 +114,11 @@ export function CardListsScreen() {
         keyExtractor={(l) => String(l.id)}
         renderItem={({ item }) => (
           <View style={styles.listingRow}>
-            {!!item.image_url && <Image source={{ uri: item.image_url }} style={styles.cardImage} />}
+            {!!item.image_url && (
+              <TouchableOpacity onPress={() => setViewingCard(item)}>
+                <Image source={{ uri: item.image_url }} style={styles.cardImage} />
+              </TouchableOpacity>
+            )}
             <View style={{ flex: 1 }}>
               <Text style={styles.cardName}>{item.card_name}</Text>
               <Text style={styles.cardSet}>{item.set_name}</Text>
@@ -135,4 +158,11 @@ const styles = StyleSheet.create({
   removeLabel: { color: "#c0392b", fontWeight: "600" },
   emptyText: { marginHorizontal: 16, color: "#999", fontSize: 14 },
   error: { color: "#c0392b", marginHorizontal: 16, marginBottom: 8 },
+  detailContainer: { flex: 1, backgroundColor: "#fff", paddingTop: 50, paddingHorizontal: 24, alignItems: "center" },
+  backButton: { alignSelf: "flex-start", marginBottom: 20 },
+  backButtonText: { color: "#1a1a2e", fontWeight: "600", fontSize: 15 },
+  detailImage: { width: "100%", aspectRatio: 5 / 7, marginBottom: 20 },
+  detailName: { fontSize: 22, fontWeight: "800", color: "#1a1a2e", textAlign: "center" },
+  detailSet: { fontSize: 15, color: "#999", marginTop: 4, textAlign: "center" },
+  detailPrice: { fontSize: 18, color: "#1a1a2e", fontWeight: "600", marginTop: 12 },
 });
