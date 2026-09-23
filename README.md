@@ -51,12 +51,20 @@ the full flow below; app typechecks). Known gaps before this is real:
   going live; the generate/verify shape won't need to change.
 - **Geocoding and card data depend on two free external APIs** —
   `api.postcodes.io` (UK postcode → lat/lng) and `api.pokemontcg.io` (card
-  search/pricing) — that this sandbox's network egress policy blocks, so
-  registration and card search couldn't be smoke-tested live from here (both
-  failed with a clean `500` rather than crashing the server — see below).
-  They're standard public APIs; test them from an environment with normal
-  internet access before relying on this. Get a free `POKEMONTCG_API_KEY`
-  from https://dev.pokemontcg.io/ for a higher rate limit.
+  search/pricing). Both have been verified working end-to-end against a real
+  device (real postcode geocoding, real card search with live pricing).
+- **`api.pokemontcg.io` is deprecated by its maintainer.** New API key
+  signups are closed; existing keys keep working through March 2027; the
+  suggested migration path is [scrydex.com](https://scrydex.com) (not yet
+  evaluated — no free-tier/pricing/API-shape info gathered yet, since it's
+  a real cost decision that needs a look before committing). In the
+  meantime the API is noticeably flakier than it used to be (intermittent
+  bare 500s on otherwise-valid queries, confirmed on real searches, not a
+  network issue) — `backend/src/services/pokemonTcgApi.ts` retries up to 3
+  times on 5xx/network errors as a mitigation, not a fix. Before March 2027,
+  this needs a real replacement data source (Scrydex or otherwise) — search
+  and per-card lookup are the only two integration points
+  (`searchCards`/`getCard`), so swapping the source is a contained change.
 - **Chat is polled, not pushed.** `ChatScreen` polls every 4s while open —
   fine for v1, but there's no push notification for a new message when the
   app isn't open. Worth adding (Expo push, same pattern as a typical Expo
