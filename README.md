@@ -72,6 +72,17 @@ the full flow below; app typechecks). Known gaps before this is real:
   `express-async-errors` (`backend/src/index.ts`) plus a catch-all error
   handler that returns a `500` instead. Worth knowing if you add more async
   routes that skip their own try/catch.
+- **SQLite is Node's built-in `node:sqlite` module, not `better-sqlite3`.**
+  Started as `better-sqlite3`, but that's a native module requiring a C++
+  toolchain to compile on install — fine on some machines, but a hard wall on
+  a fresh Windows setup without Python/Visual Studio Build Tools installed
+  (`npm install` fails with a node-gyp error). Since Node 22.5 ships an
+  equivalent SQLite module built in, `backend/src/db.ts` uses that instead —
+  same `.prepare().get()/.all()/.run()` shape, zero native compilation, so
+  `npm install` just works everywhere. Needs **Node 22.5+**. Its own types
+  are stricter than this codebase wants (no `undefined` params, no loose
+  `any` results), so `db.ts` exports a thin `prepare()` wrapper that loosens
+  both back — that's what every route imports instead of raw `node:sqlite`.
 
 ## Running locally
 

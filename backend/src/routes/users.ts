@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { db } from "../db";
+import { prepare } from "../db";
 import { UserRow } from "../types";
 import { requireAuth, AuthedRequest } from "../middleware/requireAuth";
 import { geocodePostcode, InvalidPostcodeError } from "../services/geo";
@@ -14,7 +14,7 @@ function publicUser(u: UserRow) {
 }
 
 usersRouter.get("/me", (req: AuthedRequest, res) => {
-  const user = db.prepare(`SELECT * FROM users WHERE id = ?`).get(req.userId) as UserRow | undefined;
+  const user = prepare(`SELECT * FROM users WHERE id = ?`).get(req.userId) as UserRow | undefined;
   if (!user) return res.status(404).json({ error: "Not found" });
   res.json(publicUser(user));
 });
@@ -58,9 +58,9 @@ usersRouter.patch("/me", async (req: AuthedRequest, res) => {
   if (updates.length === 0) return res.status(400).json({ error: "No fields to update" });
 
   params.push(req.userId);
-  db.prepare(`UPDATE users SET ${updates.join(", ")} WHERE id = ?`).run(...params);
+  prepare(`UPDATE users SET ${updates.join(", ")} WHERE id = ?`).run(...params);
 
-  const user = db.prepare(`SELECT * FROM users WHERE id = ?`).get(req.userId) as UserRow;
+  const user = prepare(`SELECT * FROM users WHERE id = ?`).get(req.userId) as UserRow;
   res.json(publicUser(user));
 });
 
@@ -72,8 +72,8 @@ usersRouter.post("/me/phone/request-code", (req: AuthedRequest, res) => {
   const { phone } = req.body as { phone?: string };
   if (!phone) return res.status(400).json({ error: "phone is required" });
 
-  const user = db.prepare(`SELECT * FROM users WHERE id = ?`).get(req.userId) as UserRow;
-  db.prepare(`UPDATE users SET phone = ?, phone_verified = 0 WHERE id = ?`).run(phone.trim(), req.userId);
+  const user = prepare(`SELECT * FROM users WHERE id = ?`).get(req.userId) as UserRow;
+  prepare(`UPDATE users SET phone = ?, phone_verified = 0 WHERE id = ?`).run(phone.trim(), req.userId);
   issueOtp(user.email, "phone");
   res.json({ ok: true });
 });
@@ -82,20 +82,19 @@ usersRouter.post("/me/phone/verify", (req: AuthedRequest, res) => {
   const { code } = req.body as { code?: string };
   if (!code) return res.status(400).json({ error: "code is required" });
 
-  const user = db.prepare(`SELECT * FROM users WHERE id = ?`).get(req.userId) as UserRow;
+  const user = prepare(`SELECT * FROM users WHERE id = ?`).get(req.userId) as UserRow;
   if (!verifyOtp(user.email, "phone", code)) return res.status(400).json({ error: "Invalid or expired code" });
 
-  db.prepare(`UPDATE users SET phone_verified = 1 WHERE id = ?`).run(req.userId);
+  prepare(`UPDATE users SET phone_verified = 1 WHERE id = ?`).run(req.userId);
   res.json({ ok: true });
 });
 
 /** Another user's public profile + their rating summary, e.g. before swiping. */
 usersRouter.get("/:id", (req: AuthedRequest, res) => {
-  const user = db.prepare(`SELECT * FROM users WHERE id = ?`).get(req.params.id) as UserRow | undefined;
+  const user = prepare(`SELECT * FROM users WHERE id = ?`).get(req.params.id) as UserRow | undefined;
   if (!user) return res.status(404).json({ error: "Not found" });
 
-  const ratings = db
-    .prepare(`SELECT AVG(stars) as avg, COUNT(*) as count FROM ratings WHERE ratee_id = ?`)
+  const ratings = prepare(`SELECT AVG(stars) as avg, COUNT(*) as count FROM ratings WHERE ratee_id = ?`)
     .get(user.id) as { avg: number | null; count: number };
 
   res.json({ ...publicUser(user), ratingAverage: ratings.avg, ratingCount: ratings.count });

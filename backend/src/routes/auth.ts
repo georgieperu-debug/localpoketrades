@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { db } from "../db";
+import { prepare } from "../db";
 import { UserRow } from "../types";
 import { issueOtp, verifyOtp } from "../services/otp";
 import { geocodePostcode, InvalidPostcodeError } from "../services/geo";
@@ -45,7 +45,7 @@ authRouter.post("/register", async (req, res) => {
     return res.status(400).json({ error: "Invalid or expired code" });
   }
 
-  const existing = db.prepare(`SELECT id FROM users WHERE email = ?`).get(normalizedEmail);
+  const existing = prepare(`SELECT id FROM users WHERE email = ?`).get(normalizedEmail);
   if (existing) return res.status(409).json({ error: "An account with this email already exists — use /login instead" });
 
   let coords;
@@ -56,14 +56,13 @@ authRouter.post("/register", async (req, res) => {
     throw err;
   }
 
-  const info = db
-    .prepare(
+  const info = prepare(
       `INSERT INTO users (email, email_verified, display_name, postcode, lat, lng, radius_miles, bio)
        VALUES (?, 1, ?, ?, ?, ?, ?, ?)`
     )
     .run(normalizedEmail, displayName.trim(), postcode.trim().toUpperCase(), coords.lat, coords.lng, radiusMiles ?? 15, bio ?? null);
 
-  const user = db.prepare(`SELECT * FROM users WHERE id = ?`).get(info.lastInsertRowid) as UserRow;
+  const user = prepare(`SELECT * FROM users WHERE id = ?`).get(info.lastInsertRowid) as UserRow;
   res.status(201).json({ token: signToken(user.id), user: publicUser(user) });
 });
 
@@ -77,7 +76,7 @@ authRouter.post("/login", (req, res) => {
     return res.status(400).json({ error: "Invalid or expired code" });
   }
 
-  const user = db.prepare(`SELECT * FROM users WHERE email = ?`).get(normalizedEmail) as UserRow | undefined;
+  const user = prepare(`SELECT * FROM users WHERE email = ?`).get(normalizedEmail) as UserRow | undefined;
   if (!user) return res.status(404).json({ error: "No account with this email — use /register instead" });
 
   res.json({ token: signToken(user.id), user: publicUser(user) });

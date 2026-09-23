@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { db } from "../db";
+import { prepare } from "../db";
 import { MatchRow, TradeRow } from "../types";
 import { requireAuth, AuthedRequest } from "../middleware/requireAuth";
 
@@ -18,31 +18,31 @@ function assertParticipant(match: MatchRow | undefined, myId: number): match is 
  * payment/escrow here by design (cut for v1).
  */
 tradesRouter.post("/matches/:matchId/confirm", (req: AuthedRequest, res) => {
-  const match = db.prepare(`SELECT * FROM matches WHERE id = ?`).get(req.params.matchId) as MatchRow | undefined;
+  const match = prepare(`SELECT * FROM matches WHERE id = ?`).get(req.params.matchId) as MatchRow | undefined;
   if (!assertParticipant(match, req.userId!)) return res.status(404).json({ error: "Not found" });
 
-  let trade = db.prepare(`SELECT * FROM trades WHERE match_id = ? AND completed_at IS NULL`).get(match.id) as TradeRow | undefined;
+  let trade = prepare(`SELECT * FROM trades WHERE match_id = ? AND completed_at IS NULL`).get(match.id) as TradeRow | undefined;
   if (!trade) {
-    const info = db.prepare(`INSERT INTO trades (match_id) VALUES (?)`).run(match.id);
-    trade = db.prepare(`SELECT * FROM trades WHERE id = ?`).get(info.lastInsertRowid) as TradeRow;
+    const info = prepare(`INSERT INTO trades (match_id) VALUES (?)`).run(match.id);
+    trade = prepare(`SELECT * FROM trades WHERE id = ?`).get(info.lastInsertRowid) as TradeRow;
   }
 
   const isUserA = req.userId === match.user_a;
-  db.prepare(`UPDATE trades SET ${isUserA ? "confirmed_by_a" : "confirmed_by_b"} = 1 WHERE id = ?`).run(trade.id);
-  trade = db.prepare(`SELECT * FROM trades WHERE id = ?`).get(trade.id) as TradeRow;
+  prepare(`UPDATE trades SET ${isUserA ? "confirmed_by_a" : "confirmed_by_b"} = 1 WHERE id = ?`).run(trade.id);
+  trade = prepare(`SELECT * FROM trades WHERE id = ?`).get(trade.id) as TradeRow;
 
   if (trade.confirmed_by_a && trade.confirmed_by_b && !trade.completed_at) {
-    db.prepare(`UPDATE trades SET completed_at = datetime('now') WHERE id = ?`).run(trade.id);
-    trade = db.prepare(`SELECT * FROM trades WHERE id = ?`).get(trade.id) as TradeRow;
+    prepare(`UPDATE trades SET completed_at = datetime('now') WHERE id = ?`).run(trade.id);
+    trade = prepare(`SELECT * FROM trades WHERE id = ?`).get(trade.id) as TradeRow;
   }
 
   res.json(trade);
 });
 
 tradesRouter.get("/matches/:matchId", (req: AuthedRequest, res) => {
-  const match = db.prepare(`SELECT * FROM matches WHERE id = ?`).get(req.params.matchId) as MatchRow | undefined;
+  const match = prepare(`SELECT * FROM matches WHERE id = ?`).get(req.params.matchId) as MatchRow | undefined;
   if (!assertParticipant(match, req.userId!)) return res.status(404).json({ error: "Not found" });
 
-  const trades = db.prepare(`SELECT * FROM trades WHERE match_id = ? ORDER BY created_at DESC`).all(match.id);
+  const trades = prepare(`SELECT * FROM trades WHERE match_id = ? ORDER BY created_at DESC`).all(match.id);
   res.json(trades);
 });

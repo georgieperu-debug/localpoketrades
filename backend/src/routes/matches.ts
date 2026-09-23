@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { db } from "../db";
+import { prepare } from "../db";
 import { MatchRow, MessageRow, UserRow } from "../types";
 import { requireAuth, AuthedRequest } from "../middleware/requireAuth";
 
@@ -16,17 +16,15 @@ function assertParticipant(match: MatchRow | undefined, myId: number): match is 
 
 /** My matches, most recently active first, with the other user's basic info. */
 matchesRouter.get("/", (req: AuthedRequest, res) => {
-  const matches = db
-    .prepare(`SELECT * FROM matches WHERE user_a = ? OR user_b = ? ORDER BY created_at DESC`)
+  const matches = prepare(`SELECT * FROM matches WHERE user_a = ? OR user_b = ? ORDER BY created_at DESC`)
     .all(req.userId, req.userId) as MatchRow[];
 
   const withOther = matches.map((m) => {
-    const other = db.prepare(`SELECT id, display_name FROM users WHERE id = ?`).get(otherUserId(m, req.userId!)) as Pick<
+    const other = prepare(`SELECT id, display_name FROM users WHERE id = ?`).get(otherUserId(m, req.userId!)) as Pick<
       UserRow,
       "id" | "display_name"
     >;
-    const lastMessage = db
-      .prepare(`SELECT body, created_at FROM messages WHERE match_id = ? ORDER BY created_at DESC LIMIT 1`)
+    const lastMessage = prepare(`SELECT body, created_at FROM messages WHERE match_id = ? ORDER BY created_at DESC LIMIT 1`)
       .get(m.id) as { body: string; created_at: string } | undefined;
     return { id: m.id, otherUser: { id: other.id, displayName: other.display_name }, lastMessage: lastMessage ?? null, createdAt: m.created_at };
   });
@@ -35,25 +33,23 @@ matchesRouter.get("/", (req: AuthedRequest, res) => {
 });
 
 matchesRouter.get("/:id/messages", (req: AuthedRequest, res) => {
-  const match = db.prepare(`SELECT * FROM matches WHERE id = ?`).get(req.params.id) as MatchRow | undefined;
+  const match = prepare(`SELECT * FROM matches WHERE id = ?`).get(req.params.id) as MatchRow | undefined;
   if (!assertParticipant(match, req.userId!)) return res.status(404).json({ error: "Not found" });
 
-  const messages = db
-    .prepare(`SELECT * FROM messages WHERE match_id = ? ORDER BY created_at ASC`)
+  const messages = prepare(`SELECT * FROM messages WHERE match_id = ? ORDER BY created_at ASC`)
     .all(match.id) as MessageRow[];
   res.json(messages);
 });
 
 matchesRouter.post("/:id/messages", (req: AuthedRequest, res) => {
-  const match = db.prepare(`SELECT * FROM matches WHERE id = ?`).get(req.params.id) as MatchRow | undefined;
+  const match = prepare(`SELECT * FROM matches WHERE id = ?`).get(req.params.id) as MatchRow | undefined;
   if (!assertParticipant(match, req.userId!)) return res.status(404).json({ error: "Not found" });
 
   const { body } = req.body as { body?: string };
   if (!body?.trim()) return res.status(400).json({ error: "body is required" });
 
-  const info = db
-    .prepare(`INSERT INTO messages (match_id, sender_id, body) VALUES (?, ?, ?)`)
+  const info = prepare(`INSERT INTO messages (match_id, sender_id, body) VALUES (?, ?, ?)`)
     .run(match.id, req.userId, body.trim());
-  const message = db.prepare(`SELECT * FROM messages WHERE id = ?`).get(info.lastInsertRowid);
+  const message = prepare(`SELECT * FROM messages WHERE id = ?`).get(info.lastInsertRowid);
   res.status(201).json(message);
 });

@@ -1,11 +1,34 @@
-import Database from "better-sqlite3";
+import { DatabaseSync } from "node:sqlite";
 import path from "path";
 
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, "..", "data.sqlite");
 
-export const db = new Database(DB_PATH);
-db.pragma("journal_mode = WAL");
-db.pragma("foreign_keys = ON");
+// Node's built-in SQLite module (stable since Node 22.5, no flag needed) —
+// used instead of better-sqlite3 so `npm install` never needs a C++
+// compiler/Python toolchain to build a native module. Its prepare/run/get/all
+// API and error messages (e.g. "UNIQUE constraint failed: ...") match
+// better-sqlite3 closely enough that the rest of this codebase is unchanged.
+const db = new DatabaseSync(DB_PATH);
+db.exec("PRAGMA journal_mode = WAL");
+db.exec("PRAGMA foreign_keys = ON");
+
+/**
+ * node:sqlite's own types are stricter than this codebase wants — params
+ * reject `undefined` (only `null`), and get/all return a generic
+ * SQLOutputValue record that doesn't overlap with our row interfaces, so
+ * every `as SomeRow` cast at the call site fails to typecheck. Routes
+ * already validate/narrow their inputs and know their own row shapes, so
+ * this wrapper loosens both back to `any`, matching better-sqlite3's own
+ * (equally loose) types — that's what every call site was written against.
+ */
+export function prepare(sql: string) {
+  const stmt = db.prepare(sql);
+  return {
+    get: (...params: unknown[]): any => stmt.get(...(params as any[])),
+    all: (...params: unknown[]): any[] => stmt.all(...(params as any[])),
+    run: (...params: unknown[]) => stmt.run(...(params as any[])),
+  };
+}
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS users (

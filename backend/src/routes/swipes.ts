@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { db } from "../db";
+import { prepare } from "../db";
 import { requireAuth, AuthedRequest } from "../middleware/requireAuth";
 import { findCandidates } from "../services/matchEngine";
 import { SwipeDirection } from "../types";
@@ -24,7 +24,7 @@ swipesRouter.post("/", (req: AuthedRequest, res) => {
   if (targetUserId === req.userId) return res.status(400).json({ error: "Can't swipe on yourself" });
 
   try {
-    db.prepare(`INSERT INTO swipes (user_id, target_user_id, direction) VALUES (?, ?, ?)`).run(req.userId, targetUserId, direction);
+    prepare(`INSERT INTO swipes (user_id, target_user_id, direction) VALUES (?, ?, ?)`).run(req.userId, targetUserId, direction);
   } catch (err) {
     if (err instanceof Error && err.message.includes("UNIQUE")) {
       return res.status(409).json({ error: "Already swiped on this user" });
@@ -34,15 +34,14 @@ swipesRouter.post("/", (req: AuthedRequest, res) => {
 
   if (direction === "pass") return res.json({ matched: false });
 
-  const reciprocal = db
-    .prepare(`SELECT id FROM swipes WHERE user_id = ? AND target_user_id = ? AND direction = 'like'`)
+  const reciprocal = prepare(`SELECT id FROM swipes WHERE user_id = ? AND target_user_id = ? AND direction = 'like'`)
     .get(targetUserId, req.userId);
 
   if (!reciprocal) return res.json({ matched: false });
 
   const [userA, userB] = [req.userId!, targetUserId].sort((a, b) => a - b);
-  db.prepare(`INSERT OR IGNORE INTO matches (user_a, user_b) VALUES (?, ?)`).run(userA, userB);
-  const match = db.prepare(`SELECT id FROM matches WHERE user_a = ? AND user_b = ?`).get(userA, userB) as { id: number };
+  prepare(`INSERT OR IGNORE INTO matches (user_a, user_b) VALUES (?, ?)`).run(userA, userB);
+  const match = prepare(`SELECT id FROM matches WHERE user_a = ? AND user_b = ?`).get(userA, userB) as { id: number };
 
   res.json({ matched: true, matchId: match.id });
 });

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { db } from "../db";
+import { prepare } from "../db";
 import { CardListingRow, ListType } from "../types";
 import { requireAuth, AuthedRequest } from "../middleware/requireAuth";
 import { getCard } from "../services/pokemonTcgApi";
@@ -15,8 +15,8 @@ function isListType(v: unknown): v is ListType {
 listingsRouter.get("/", (req: AuthedRequest, res) => {
   const type = req.query.type;
   const rows = isListType(type)
-    ? (db.prepare(`SELECT * FROM card_listings WHERE user_id = ? AND list_type = ? ORDER BY added_at DESC`).all(req.userId, type) as CardListingRow[])
-    : (db.prepare(`SELECT * FROM card_listings WHERE user_id = ? ORDER BY added_at DESC`).all(req.userId) as CardListingRow[]);
+    ? (prepare(`SELECT * FROM card_listings WHERE user_id = ? AND list_type = ? ORDER BY added_at DESC`).all(req.userId, type) as CardListingRow[])
+    : (prepare(`SELECT * FROM card_listings WHERE user_id = ? ORDER BY added_at DESC`).all(req.userId) as CardListingRow[]);
   res.json(rows);
 });
 
@@ -29,13 +29,12 @@ listingsRouter.post("/", async (req: AuthedRequest, res) => {
   if (!card) return res.status(404).json({ error: "Card not found" });
 
   try {
-    const info = db
-      .prepare(
+    const info = prepare(
         `INSERT INTO card_listings (user_id, list_type, card_id, card_name, set_name, image_url, market_price, condition)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
       )
       .run(req.userId, listType, card.id, card.name, card.setName, card.imageUrl, card.marketPrice, condition ?? null);
-    const row = db.prepare(`SELECT * FROM card_listings WHERE id = ?`).get(info.lastInsertRowid);
+    const row = prepare(`SELECT * FROM card_listings WHERE id = ?`).get(info.lastInsertRowid);
     res.status(201).json(row);
   } catch (err) {
     if (err instanceof Error && err.message.includes("UNIQUE")) {
@@ -46,7 +45,7 @@ listingsRouter.post("/", async (req: AuthedRequest, res) => {
 });
 
 listingsRouter.delete("/:id", (req: AuthedRequest, res) => {
-  const result = db.prepare(`DELETE FROM card_listings WHERE id = ? AND user_id = ?`).run(req.params.id, req.userId);
+  const result = prepare(`DELETE FROM card_listings WHERE id = ? AND user_id = ?`).run(req.params.id, req.userId);
   if (result.changes === 0) return res.status(404).json({ error: "Not found" });
   res.status(204).send();
 });
