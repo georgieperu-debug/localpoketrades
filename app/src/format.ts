@@ -1,9 +1,10 @@
 /**
- * Card prices come from TCGplayer (via the PokemonTCG API), a US
- * marketplace — the number is always USD, never converted. Labelled as
- * such rather than shown with a £ sign, which would just be a different
- * kind of wrong.
+ * Card prices come from Cardmarket (EUR, preferred — the reference UK/EU
+ * collectors actually use) or TCGplayer (USD, fallback for cards missing
+ * Cardmarket data). Never hardcode a currency symbol here — always show
+ * whichever one the price actually came from.
  */
-export function formatCardPrice(usd: number): string {
-  return `$${usd.toFixed(2)}`;
+export function formatCardPrice(amount: number, currency: string | null): string {
+  const symbol = currency === "EUR" ? "€" : currency === "USD" ? "$" : "";
+  return `${symbol}${amount.toFixed(2)}`;
 }

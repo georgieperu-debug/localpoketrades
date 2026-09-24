@@ -94,7 +94,7 @@ export function DiscoverScreen({ onMatched }: { onMatched: (matchId: number) => 
                 {!!c.imageUrl && <Image source={{ uri: c.imageUrl }} style={styles.cardImage} />}
                 <View style={{ flex: 1 }}>
                   <Text style={styles.cardName}>{c.cardName}</Text>
-                  {c.marketPrice != null && <Text style={styles.cardPrice}>{formatCardPrice(c.marketPrice)}</Text>}
+                  {c.marketPrice != null && <Text style={styles.cardPrice}>{formatCardPrice(c.marketPrice, c.marketPriceCurrency)}</Text>}
                 </View>
               </View>
             ))}
@@ -109,7 +109,7 @@ export function DiscoverScreen({ onMatched }: { onMatched: (matchId: number) => 
                 {!!c.imageUrl && <Image source={{ uri: c.imageUrl }} style={styles.cardImage} />}
                 <View style={{ flex: 1 }}>
                   <Text style={styles.cardName}>{c.cardName}</Text>
-                  {c.marketPrice != null && <Text style={styles.cardPrice}>{formatCardPrice(c.marketPrice)}</Text>}
+                  {c.marketPrice != null && <Text style={styles.cardPrice}>{formatCardPrice(c.marketPrice, c.marketPriceCurrency)}</Text>}
                 </View>
               </View>
             ))}

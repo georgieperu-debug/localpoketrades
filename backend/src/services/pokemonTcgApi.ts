@@ -28,6 +28,8 @@ async function withRetry<T>(fn: () => Promise<T>, attempts = 3): Promise<T> {
   throw new Error("unreachable");
 }
 
+export type PriceCurrency = "EUR" | "USD";
+
 export interface CardSummary {
   id: string;
   name: string;
@@ -36,6 +38,8 @@ export interface CardSummary {
   /** Higher-res image, for detail/zoomed views — the "small" imageUrl looks blurry scaled up. */
   imageUrlLarge: string;
   marketPrice: number | null;
+  /** Which currency marketPrice actually is — never assume, always show alongside the number. */
+  marketPriceCurrency: PriceCurrency | null;
 }
 
 interface ApiCard {
@@ -46,11 +50,28 @@ interface ApiCard {
   tcgplayer?: {
     prices?: Record<string, { market?: number | null } | undefined>;
   };
+  cardmarket?: {
+    prices?: {
+      trendPrice?: number | null;
+      averageSellPrice?: number | null;
+    };
+  };
 }
 
+// Cardmarket (EUR) is preferred over TCGplayer (USD) — it's the reference
+// UK/EU collectors and traders actually use, TCGplayer is US-centric.
+// trendPrice is Cardmarket's own "current fair value" metric; averageSellPrice
+// is the fallback for cards missing a trend price. TCGplayer only kicks in
+// if a card has no Cardmarket data at all (unverified how common that is —
+// this sandbox can't reach the live API to check).
 function toSummary(card: ApiCard): CardSummary {
-  const priceBlock = card.tcgplayer?.prices ?? {};
-  const marketPrice = Object.values(priceBlock).find((p) => p?.market != null)?.market ?? null;
+  const cardmarketPrice = card.cardmarket?.prices?.trendPrice ?? card.cardmarket?.prices?.averageSellPrice ?? null;
+
+  const tcgplayerPriceBlock = card.tcgplayer?.prices ?? {};
+  const tcgplayerPrice = Object.values(tcgplayerPriceBlock).find((p) => p?.market != null)?.market ?? null;
+
+  const [marketPrice, marketPriceCurrency]: [number | null, PriceCurrency | null] =
+    cardmarketPrice != null ? [cardmarketPrice, "EUR"] : tcgplayerPrice != null ? [tcgplayerPrice, "USD"] : [null, null];
 
   return {
     id: card.id,
@@ -59,6 +80,7 @@ function toSummary(card: ApiCard): CardSummary {
     imageUrl: card.images?.small ?? "",
     imageUrlLarge: card.images?.large ?? card.images?.small ?? "",
     marketPrice,
+    marketPriceCurrency,
   };
 }
 

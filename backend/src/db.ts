@@ -66,6 +66,7 @@ db.exec(`
     image_url TEXT NOT NULL,
     image_url_large TEXT NOT NULL DEFAULT '',
     market_price REAL,
+    market_price_currency TEXT,
     condition TEXT,
     added_at TEXT NOT NULL DEFAULT (datetime('now')),
     UNIQUE(user_id, list_type, card_id)
@@ -131,9 +132,14 @@ db.exec(`
 `);
 
 // Lightweight migration: CREATE TABLE IF NOT EXISTS above doesn't add new
-// columns to a table that already existed from a previous run, so add
-// image_url_large by hand for databases created before it existed.
+// columns to a table that already existed from a previous run, so add any
+// missing ones by hand for databases created before they existed.
 const cardListingColumns = db.prepare(`PRAGMA table_info(card_listings)`).all() as { name: string }[];
-if (!cardListingColumns.some((c) => c.name === "image_url_large")) {
-  db.exec(`ALTER TABLE card_listings ADD COLUMN image_url_large TEXT NOT NULL DEFAULT ''`);
+const existingColumnNames = new Set(cardListingColumns.map((c) => c.name));
+const cardListingMigrations: Record<string, string> = {
+  image_url_large: `ALTER TABLE card_listings ADD COLUMN image_url_large TEXT NOT NULL DEFAULT ''`,
+  market_price_currency: `ALTER TABLE card_listings ADD COLUMN market_price_currency TEXT`,
+};
+for (const [column, statement] of Object.entries(cardListingMigrations)) {
+  if (!existingColumnNames.has(column)) db.exec(statement);
 }

@@ -7,6 +7,7 @@ export interface OverlapCard {
   cardName: string;
   imageUrl: string;
   marketPrice: number | null;
+  marketPriceCurrency: string | null;
 }
 
 export interface Candidate {
@@ -20,7 +21,13 @@ export interface Candidate {
 }
 
 function toOverlapCard(row: CardListingRow): OverlapCard {
-  return { cardId: row.card_id, cardName: row.card_name, imageUrl: row.image_url, marketPrice: row.market_price };
+  return {
+    cardId: row.card_id,
+    cardName: row.card_name,
+    imageUrl: row.image_url,
+    marketPrice: row.market_price,
+    marketPriceCurrency: row.market_price_currency,
+  };
 }
 
 /**

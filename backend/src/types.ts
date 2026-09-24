@@ -26,6 +26,7 @@ export interface CardListingRow {
   image_url: string;
   image_url_large: string;
   market_price: number | null;
+  market_price_currency: string | null;
   condition: string | null;
   added_at: string;
 }

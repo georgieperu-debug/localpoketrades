@@ -25,6 +25,7 @@ export interface CardListing {
   image_url: string;
   image_url_large: string;
   market_price: number | null;
+  market_price_currency: string | null;
   condition: string | null;
   added_at: string;
 }
@@ -35,6 +36,7 @@ export interface CardSummary {
   setName: string;
   imageUrl: string;
   marketPrice: number | null;
+  marketPriceCurrency: string | null;
 }
 
 export interface OverlapCard {
@@ -42,6 +44,7 @@ export interface OverlapCard {
   cardName: string;
   imageUrl: string;
   marketPrice: number | null;
+  marketPriceCurrency: string | null;
 }
 
 export interface Candidate {

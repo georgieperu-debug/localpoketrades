@@ -69,7 +69,10 @@ export function CardListsScreen() {
         <Text style={styles.detailName}>{viewingCard.card_name}</Text>
         <Text style={styles.detailSet}>{viewingCard.set_name}</Text>
         {viewingCard.market_price != null && (
-          <Text style={styles.detailPrice}>{formatCardPrice(viewingCard.market_price)} (TCGplayer market price, USD)</Text>
+          <Text style={styles.detailPrice}>
+            {formatCardPrice(viewingCard.market_price, viewingCard.market_price_currency)}
+            {viewingCard.market_price_currency === "EUR" ? " (Cardmarket)" : viewingCard.market_price_currency === "USD" ? " (TCGplayer)" : ""}
+          </Text>
         )}
       </View>
     );
@@ -127,7 +130,7 @@ export function CardListsScreen() {
             <View style={{ flex: 1 }}>
               <Text style={styles.cardName}>{item.card_name}</Text>
               <Text style={styles.cardSet}>{item.set_name}</Text>
-              {item.market_price != null && <Text style={styles.cardPrice}>{formatCardPrice(item.market_price)}</Text>}
+              {item.market_price != null && <Text style={styles.cardPrice}>{formatCardPrice(item.market_price, item.market_price_currency)}</Text>}
             </View>
             <TouchableOpacity onPress={() => handleRemove(item.id)}>
               <Text style={styles.removeLabel}>Remove</Text>
