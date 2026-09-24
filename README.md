@@ -20,7 +20,11 @@ Local Discord feedback shaped a few choices worth calling out:
   (from the PokémonTCG API) so people have a shared reference, but nothing in
   the app scores or gates a match on whether it's "even" — the recurring
   complaint was that over-indexing on value is what makes trading
-  unpleasant, so this stays informational only.
+  unpleasant, so this stays informational only. Prices are TCGplayer's
+  (a US marketplace) and shown in USD — the app used to show them with a
+  hardcoded £ with no conversion, which was flatly wrong; fixed to label
+  them as USD (`app/src/format.ts`) instead of guessing at a GBP
+  conversion with a hardcoded exchange rate that would just go stale.
 - **Radius is a user-set slider**, not a fixed distance — default 15 miles,
   adjustable per user in Profile.
 - **Scam mitigation, pulled forward from the original Phase 2 plan**: every

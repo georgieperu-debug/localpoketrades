@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, ScrollView, Image } from "react-native";
 import { getCandidates, swipe } from "../api";
 import { Candidate } from "../types";
+import { formatCardPrice } from "../format";
 
 export function DiscoverScreen({ onMatched }: { onMatched: (matchId: number) => void }) {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -93,7 +94,7 @@ export function DiscoverScreen({ onMatched }: { onMatched: (matchId: number) => 
                 {!!c.imageUrl && <Image source={{ uri: c.imageUrl }} style={styles.cardImage} />}
                 <View style={{ flex: 1 }}>
                   <Text style={styles.cardName}>{c.cardName}</Text>
-                  {c.marketPrice != null && <Text style={styles.cardPrice}>~£{c.marketPrice.toFixed(2)}</Text>}
+                  {c.marketPrice != null && <Text style={styles.cardPrice}>{formatCardPrice(c.marketPrice)}</Text>}
                 </View>
               </View>
             ))}
@@ -108,7 +109,7 @@ export function DiscoverScreen({ onMatched }: { onMatched: (matchId: number) => 
                 {!!c.imageUrl && <Image source={{ uri: c.imageUrl }} style={styles.cardImage} />}
                 <View style={{ flex: 1 }}>
                   <Text style={styles.cardName}>{c.cardName}</Text>
-                  {c.marketPrice != null && <Text style={styles.cardPrice}>~£{c.marketPrice.toFixed(2)}</Text>}
+                  {c.marketPrice != null && <Text style={styles.cardPrice}>{formatCardPrice(c.marketPrice)}</Text>}
                 </View>
               </View>
             ))}

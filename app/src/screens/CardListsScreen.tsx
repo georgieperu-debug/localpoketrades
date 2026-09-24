@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, FlatList, Image, ActivityIndicator } from "react-native";
 import { getListings, addListing, removeListing, searchCards } from "../api";
 import { CardListing, CardSummary, ListType } from "../types";
+import { formatCardPrice } from "../format";
 
 export function CardListsScreen() {
   const [listType, setListType] = useState<ListType>("want");
@@ -68,7 +69,7 @@ export function CardListsScreen() {
         <Text style={styles.detailName}>{viewingCard.card_name}</Text>
         <Text style={styles.detailSet}>{viewingCard.set_name}</Text>
         {viewingCard.market_price != null && (
-          <Text style={styles.detailPrice}>~£{viewingCard.market_price.toFixed(2)}</Text>
+          <Text style={styles.detailPrice}>{formatCardPrice(viewingCard.market_price)} (TCGplayer market price, USD)</Text>
         )}
       </View>
     );
@@ -126,7 +127,7 @@ export function CardListsScreen() {
             <View style={{ flex: 1 }}>
               <Text style={styles.cardName}>{item.card_name}</Text>
               <Text style={styles.cardSet}>{item.set_name}</Text>
-              {item.market_price != null && <Text style={styles.cardPrice}>~£{item.market_price.toFixed(2)}</Text>}
+              {item.market_price != null && <Text style={styles.cardPrice}>{formatCardPrice(item.market_price)}</Text>}
             </View>
             <TouchableOpacity onPress={() => handleRemove(item.id)}>
               <Text style={styles.removeLabel}>Remove</Text>
