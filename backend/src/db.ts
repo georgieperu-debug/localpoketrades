@@ -93,7 +93,8 @@ db.exec(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     match_id INTEGER NOT NULL REFERENCES matches(id) ON DELETE CASCADE,
     sender_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    body TEXT NOT NULL,
+    body TEXT NOT NULL DEFAULT '',
+    image_url TEXT,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
 
@@ -134,12 +135,19 @@ db.exec(`
 // Lightweight migration: CREATE TABLE IF NOT EXISTS above doesn't add new
 // columns to a table that already existed from a previous run, so add any
 // missing ones by hand for databases created before they existed.
-const cardListingColumns = db.prepare(`PRAGMA table_info(card_listings)`).all() as { name: string }[];
-const existingColumnNames = new Set(cardListingColumns.map((c) => c.name));
-const cardListingMigrations: Record<string, string> = {
+function migrateColumns(table: string, migrations: Record<string, string>) {
+  const columns = db.prepare(`PRAGMA table_info(${table})`).all() as { name: string }[];
+  const existingColumnNames = new Set(columns.map((c) => c.name));
+  for (const [column, statement] of Object.entries(migrations)) {
+    if (!existingColumnNames.has(column)) db.exec(statement);
+  }
+}
+
+migrateColumns("card_listings", {
   image_url_large: `ALTER TABLE card_listings ADD COLUMN image_url_large TEXT NOT NULL DEFAULT ''`,
   market_price_currency: `ALTER TABLE card_listings ADD COLUMN market_price_currency TEXT`,
-};
-for (const [column, statement] of Object.entries(cardListingMigrations)) {
-  if (!existingColumnNames.has(column)) db.exec(statement);
-}
+});
+
+migrateColumns("messages", {
+  image_url: `ALTER TABLE messages ADD COLUMN image_url TEXT`,
+});

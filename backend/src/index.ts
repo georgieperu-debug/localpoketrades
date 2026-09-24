@@ -7,6 +7,7 @@ import cors from "cors";
 // imported before any router that has async handlers.
 import "express-async-errors";
 import "./db";
+import { UPLOADS_DIR } from "./uploads";
 import { authRouter } from "./routes/auth";
 import { usersRouter } from "./routes/users";
 import { cardsRouter } from "./routes/cards";
@@ -23,6 +24,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/health", (_req, res) => res.json({ ok: true }));
+app.use("/uploads", express.static(UPLOADS_DIR));
 
 app.use("/auth", authRouter);
 app.use("/users", usersRouter);

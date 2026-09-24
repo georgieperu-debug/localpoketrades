@@ -79,6 +79,11 @@ the full flow below; app typechecks). Known gaps before this is real:
   fine for v1, but there's no push notification for a new message when the
   app isn't open. Worth adding (Expo push, same pattern as a typical Expo
   app) once there's real usage to justify it.
+- **Chat supports photos** (tap the camera button) — for pre-meetup card
+  inspection, the actual thing that came up in testing. Stored on local
+  disk under `backend/uploads/` and served statically
+  (`backend/src/uploads.ts`); fine for now, but worth knowing it won't
+  survive a redeploy without persistent disk if this moves to real hosting.
 - **No payments/escrow, no grading integration** — both explicitly deferred
   to Phase 2 per the original plan.
 - **Design system**: colours in `app/src/theme.ts` are sampled directly from

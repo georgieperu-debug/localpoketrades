@@ -73,6 +73,33 @@ export const getMessages = (matchId: number) => request<Message[]>(`/matches/${m
 export const sendMessage = (matchId: number, body: string) =>
   request<Message>(`/matches/${matchId}/messages`, { method: "POST", body: JSON.stringify({ body }) });
 
+/**
+ * Uploads a photo (e.g. a card someone's asking to inspect before meeting
+ * up) as a chat message. Bypasses `request()` deliberately — it always
+ * sets Content-Type: application/json, which would break the multipart
+ * boundary fetch needs to set itself for FormData.
+ */
+export async function sendImageMessage(matchId: number, imageUri: string): Promise<Message> {
+  const form = new FormData();
+  const filename = imageUri.split("/").pop() || "photo.jpg";
+  const match = /\.(\w+)$/.exec(filename);
+  const ext = match ? match[1].toLowerCase() : "jpg";
+  // React Native's fetch accepts this { uri, name, type } shape for a FormData file field.
+  form.append("image", { uri: imageUri, name: filename, type: `image/${ext === "jpg" ? "jpeg" : ext}` } as unknown as Blob);
+
+  const res = await fetch(`${API_BASE_URL}/matches/${matchId}/messages/image`, {
+    method: "POST",
+    headers: authToken ? { Authorization: `Bearer ${authToken}` } : {},
+    body: form,
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({ error: res.statusText }));
+    throw new Error(body.error || `Request failed (${res.status})`);
+  }
+  return res.json();
+}
+
 // --- Trades / ratings ---
 export const getTradesForMatch = (matchId: number) => request<Trade[]>(`/trades/matches/${matchId}`);
 export const confirmTrade = (matchId: number) => request<Trade>(`/trades/matches/${matchId}/confirm`, { method: "POST" });

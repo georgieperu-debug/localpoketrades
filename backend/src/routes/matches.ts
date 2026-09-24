@@ -2,6 +2,7 @@ import { Router } from "express";
 import { prepare } from "../db";
 import { MatchRow, MessageRow, UserRow } from "../types";
 import { requireAuth, AuthedRequest } from "../middleware/requireAuth";
+import { uploadChatImage } from "../uploads";
 
 export const matchesRouter = Router();
 matchesRouter.use(requireAuth);
@@ -50,6 +51,25 @@ matchesRouter.post("/:id/messages", (req: AuthedRequest, res) => {
 
   const info = prepare(`INSERT INTO messages (match_id, sender_id, body) VALUES (?, ?, ?)`)
     .run(match.id, req.userId, body.trim());
+  const message = prepare(`SELECT * FROM messages WHERE id = ?`).get(info.lastInsertRowid);
+  res.status(201).json(message);
+});
+
+/**
+ * Send a photo in chat — e.g. a card someone's asking the other party to
+ * inspect before agreeing to meet up. Stored on local disk under
+ * backend/uploads/ and served statically; fine for this stage, but worth
+ * knowing it doesn't survive a redeploy without persistent disk if this
+ * ever moves to real hosting.
+ */
+matchesRouter.post("/:id/messages/image", uploadChatImage.single("image"), (req: AuthedRequest, res) => {
+  const match = prepare(`SELECT * FROM matches WHERE id = ?`).get(req.params.id) as MatchRow | undefined;
+  if (!assertParticipant(match, req.userId!)) return res.status(404).json({ error: "Not found" });
+  if (!req.file) return res.status(400).json({ error: "image is required" });
+
+  const imageUrl = `/uploads/${req.file.filename}`;
+  const info = prepare(`INSERT INTO messages (match_id, sender_id, body, image_url) VALUES (?, ?, ?, ?)`)
+    .run(match.id, req.userId, "", imageUrl);
   const message = prepare(`SELECT * FROM messages WHERE id = ?`).get(info.lastInsertRowid);
   res.status(201).json(message);
 });

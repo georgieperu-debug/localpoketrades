@@ -51,6 +51,7 @@ export interface MessageRow {
   match_id: number;
   sender_id: number;
   body: string;
+  image_url: string | null;
   created_at: string;
 }
 

@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { StyleSheet, Text, View, FlatList, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Alert } from "react-native";
-import { getMessages, sendMessage, getTradesForMatch, confirmTrade, rateTrade, reportUser } from "../api";
+import { StyleSheet, Text, View, FlatList, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Alert, Image } from "react-native";
+import * as ImagePicker from "expo-image-picker";
+import { getMessages, sendMessage, sendImageMessage, getTradesForMatch, confirmTrade, rateTrade, reportUser } from "../api";
 import { useAuth } from "../auth/AuthContext";
 import { Message, Trade } from "../types";
 import { colors } from "../theme";
+import { API_BASE_URL } from "../config";
 
 const POLL_MS = 4000;
 
@@ -17,6 +19,8 @@ export function ChatScreen({ matchId, otherName, otherUserId, onBack }: { matchI
   const [review, setReview] = useState("");
   const [showReportBox, setShowReportBox] = useState(false);
   const [reportReason, setReportReason] = useState("");
+  const [sendingImage, setSendingImage] = useState(false);
+  const [viewingImageUrl, setViewingImageUrl] = useState<string | null>(null);
   const listRef = useRef<FlatList<Message>>(null);
 
   const loadMessages = useCallback(async () => {
@@ -63,6 +67,46 @@ export function ChatScreen({ matchId, otherName, otherUserId, onBack }: { matchI
     setRated(true);
   };
 
+  const sendPickedImage = async (uri: string) => {
+    setSendingImage(true);
+    try {
+      await sendImageMessage(matchId, uri);
+      await loadMessages();
+    } catch (err) {
+      Alert.alert("Couldn't send photo", (err as Error).message);
+    } finally {
+      setSendingImage(false);
+    }
+  };
+
+  const handleTakePhoto = async () => {
+    const permission = await ImagePicker.requestCameraPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert("Camera access needed", "Enable camera access in Settings to take a photo.");
+      return;
+    }
+    const result = await ImagePicker.launchCameraAsync({ quality: 0.7 });
+    if (!result.canceled && result.assets[0]) await sendPickedImage(result.assets[0].uri);
+  };
+
+  const handleChooseFromLibrary = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert("Photo library access needed", "Enable photo access in Settings to share a photo.");
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.7 });
+    if (!result.canceled && result.assets[0]) await sendPickedImage(result.assets[0].uri);
+  };
+
+  const handlePickImage = () => {
+    Alert.alert("Share a photo", "Let the other person inspect the card before you meet up.", [
+      { text: "Take photo", onPress: handleTakePhoto },
+      { text: "Choose from library", onPress: handleChooseFromLibrary },
+      { text: "Cancel", style: "cancel" },
+    ]);
+  };
+
   const handleSubmitReport = async () => {
     if (!reportReason.trim()) return;
     await reportUser(otherUserId, reportReason.trim());
@@ -73,6 +117,17 @@ export function ChatScreen({ matchId, otherName, otherUserId, onBack }: { matchI
 
   const tradeComplete = !!trade?.completed_at;
   const iConfirmed = trade && user && (trade.confirmed_by_a || trade.confirmed_by_b);
+
+  if (viewingImageUrl) {
+    return (
+      <View style={styles.imageViewer}>
+        <TouchableOpacity style={styles.backButton} onPress={() => setViewingImageUrl(null)}>
+          <Text style={styles.backButtonText}>{"< Back"}</Text>
+        </TouchableOpacity>
+        <Image source={{ uri: `${API_BASE_URL}${viewingImageUrl}` }} style={styles.fullImage} resizeMode="contain" />
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "padding" : undefined}>
@@ -109,7 +164,13 @@ export function ChatScreen({ matchId, otherName, otherUserId, onBack }: { matchI
         contentContainerStyle={styles.messages}
         renderItem={({ item }) => (
           <View style={[styles.bubble, item.sender_id === user?.id ? styles.bubbleMine : styles.bubbleTheirs]}>
-            <Text style={item.sender_id === user?.id ? styles.bubbleTextMine : styles.bubbleTextTheirs}>{item.body}</Text>
+            {item.image_url ? (
+              <TouchableOpacity onPress={() => setViewingImageUrl(item.image_url)}>
+                <Image source={{ uri: `${API_BASE_URL}${item.image_url}` }} style={styles.bubbleImage} resizeMode="cover" />
+              </TouchableOpacity>
+            ) : (
+              <Text style={item.sender_id === user?.id ? styles.bubbleTextMine : styles.bubbleTextTheirs}>{item.body}</Text>
+            )}
           </View>
         )}
       />
@@ -138,6 +199,9 @@ export function ChatScreen({ matchId, otherName, otherUserId, onBack }: { matchI
       )}
 
       <View style={styles.inputRow}>
+        <TouchableOpacity style={styles.photoButton} onPress={handlePickImage} disabled={sendingImage}>
+          <Text style={styles.photoButtonText}>{sendingImage ? "…" : "📷"}</Text>
+        </TouchableOpacity>
         <TextInput style={styles.input} value={body} onChangeText={setBody} placeholder="Message..." onSubmitEditing={handleSend} />
         <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
           <Text style={styles.sendButtonText}>Send</Text>
@@ -178,8 +242,15 @@ const styles = StyleSheet.create({
   star: { fontSize: 28, color: colors.border },
   starSelected: { color: colors.gold },
   reviewInput: { backgroundColor: colors.white, borderRadius: 8, padding: 10, minHeight: 44, marginBottom: 8, borderWidth: 1, borderColor: colors.border },
-  inputRow: { flexDirection: "row", padding: 12, gap: 8, borderTopWidth: 1, borderTopColor: colors.border },
+  inputRow: { flexDirection: "row", padding: 12, gap: 8, borderTopWidth: 1, borderTopColor: colors.border, alignItems: "center" },
   input: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: 20, paddingHorizontal: 14, paddingVertical: 10 },
   sendButton: { backgroundColor: colors.navy, paddingHorizontal: 16, borderRadius: 20, justifyContent: "center" },
   sendButtonText: { color: colors.white, fontWeight: "700" },
+  photoButton: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.surface, alignItems: "center", justifyContent: "center" },
+  photoButtonText: { fontSize: 18 },
+  bubbleImage: { width: 180, height: 240, borderRadius: 8 },
+  imageViewer: { flex: 1, backgroundColor: colors.white, paddingTop: 50, paddingHorizontal: 24 },
+  backButton: { marginBottom: 20 },
+  backButtonText: { color: colors.navy, fontWeight: "600", fontSize: 15 },
+  fullImage: { flex: 1 },
 });
