@@ -18,6 +18,19 @@ const ARTICLES = [
       "If in doubt, meet in a public place, inspect the card in hand before completing the trade, and use the in-app report button if something feels off — don't complete a trade you're not confident in.",
     ],
   },
+  {
+    slug: "meetup-safety",
+    title: "Meeting up safely",
+    body: [
+      "Always meet in a public place — a shop, shopping centre, café, or similar. Never agree to meet at someone's home, and never share your own address with a match.",
+      "If your local police force offers a designated safe exchange point (many now do — often a car park bay outside a police station, covered by CCTV, specifically intended for meeting up with someone from a buying/selling/trading app), use it. Search \"safe exchange point\" plus your area to check.",
+      "Meet during the day where possible, and in a spot with other people around rather than somewhere quiet or isolated.",
+      "Bring a friend along if that makes you more comfortable, especially for a higher-value trade — there's no downside to it.",
+      "Tell someone where you're going and roughly how long you expect to be, the same as you would for meeting anyone else you've only spoken to online.",
+      "Inspect the card in hand before agreeing the trade is done. It's fine to say no and walk away if something doesn't look right, even after travelling to meet.",
+      "The app connects you and gets out of the way from there — it doesn't guarantee a trade will happen or vouch for either person. If something feels off before or after meeting up, use the in-app report button.",
+    ],
+  },
 ];
 
 helpRouter.get("/articles", (_req, res) => {

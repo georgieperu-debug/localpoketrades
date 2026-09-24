@@ -12,10 +12,10 @@ export function ProfileScreen() {
   const [radiusMiles, setRadiusMiles] = useState(String(user?.radiusMiles ?? 15));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showHelp, setShowHelp] = useState(false);
+  const [helpSlug, setHelpSlug] = useState<string | null>(null);
 
-  if (showHelp) {
-    return <HelpArticleScreen slug="spotting-fake-cards" onBack={() => setShowHelp(false)} />;
+  if (helpSlug) {
+    return <HelpArticleScreen slug={helpSlug} onBack={() => setHelpSlug(null)} />;
   }
 
   const handleSave = async () => {
@@ -54,8 +54,11 @@ export function ProfileScreen() {
         <Text style={styles.saveButtonText}>{saving ? "Saving..." : "Save changes"}</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.helpLink} onPress={() => setShowHelp(true)}>
+      <TouchableOpacity style={styles.helpLink} onPress={() => setHelpSlug("spotting-fake-cards")}>
         <Text style={styles.helpLinkText}>How to spot a fake card</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.helpLink} onPress={() => setHelpSlug("meetup-safety")}>
+        <Text style={styles.helpLinkText}>Meeting up safely</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.signOutButton} onPress={signOut}>
