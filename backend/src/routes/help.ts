@@ -23,7 +23,7 @@ const ARTICLES = [
     title: "Meeting up safely",
     body: [
       "Always meet in a public place — a shop, shopping centre, café, or similar. Never agree to meet at someone's home, and never share your own address with a match.",
-      "If your local police force offers a designated safe exchange point (many now do — often a car park bay outside a police station, covered by CCTV, specifically intended for meeting up with someone from a buying/selling/trading app), use it. Search \"safe exchange point\" plus your area to check.",
+      "If your local police force offers a designated safe exchange point (many now do — often a car park bay outside a police station, covered by CCTV, specifically intended for meeting up with someone from a buying/selling/trading app), use it. Find your local force at police.uk/pu/contact-us/find-force-local-policing-team and check their website or social media for one.",
       "Meet during the day where possible, and in a spot with other people around rather than somewhere quiet or isolated.",
       "Bring a friend along if that makes you more comfortable, especially for a higher-value trade — there's no downside to it.",
       "Tell someone where you're going and roughly how long you expect to be, the same as you would for meeting anyone else you've only spoken to online.",
