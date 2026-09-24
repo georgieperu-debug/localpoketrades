@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { SafeAreaView, StatusBar, View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
+import { StatusBar, View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "./src/auth/AuthContext";
 import { AuthScreen } from "./src/screens/AuthScreen";
 import { DiscoverScreen } from "./src/screens/DiscoverScreen";
@@ -75,12 +76,14 @@ function Root() {
 
 export default function App() {
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <StatusBar barStyle="dark-content" />
-      <AuthProvider>
-        <Root />
-      </AuthProvider>
-    </SafeAreaView>
+    <SafeAreaProvider>
+      <SafeAreaView style={{ flex: 1 }}>
+        <StatusBar barStyle="dark-content" />
+        <AuthProvider>
+          <Root />
+        </AuthProvider>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
