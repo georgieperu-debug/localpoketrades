@@ -31,6 +31,15 @@ Local Discord feedback shaped a few choices worth calling out:
   often a card actually has Cardmarket data populated — this sandbox can't
   reach the live API to check across a range of cards, so watch for cards
   unexpectedly falling back to USD.
+- **`GET /users/:id` returns a user's exact postcode to any logged-in
+  user**, not just an existing match — noticed while adding the public
+  profile screen (`PublicProfileScreen`), which surfaces this endpoint more
+  prominently than before, but the exposure itself predates that screen. A
+  full UK postcode identifies a small group of houses, which is more
+  precise than this app needs to show anyone browsing profiles. Worth
+  trimming to something coarser (e.g. just distance, which Discover
+  already computes) before this has real users — not fixed yet since it
+  wasn't the thing asked for.
 - **Radius is a user-set slider**, not a fixed distance — default 15 miles,
   adjustable per user in Profile.
 - **Scam mitigation, pulled forward from the original Phase 2 plan**: every
