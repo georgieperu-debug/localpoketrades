@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
 import { getHelpArticle } from "../api";
 import { HelpArticle } from "../types";
+import { colors } from "../theme";
 
 export function HelpArticleScreen({ slug, onBack }: { slug: string; onBack: () => void }) {
   const [article, setArticle] = useState<HelpArticle | null>(null);
@@ -16,7 +17,7 @@ export function HelpArticleScreen({ slug, onBack }: { slug: string; onBack: () =
         <Text style={styles.back}>{"< Back"}</Text>
       </TouchableOpacity>
       {!article ? (
-        <ActivityIndicator style={{ marginTop: 40 }} color="#1a1a2e" />
+        <ActivityIndicator style={{ marginTop: 40 }} color={colors.navy} />
       ) : (
         <>
           <Text style={styles.title}>{article.title}</Text>
@@ -32,8 +33,8 @@ export function HelpArticleScreen({ slug, onBack }: { slug: string; onBack: () =
 }
 
 const styles = StyleSheet.create({
-  container: { flexGrow: 1, backgroundColor: "#fff", paddingTop: 60, paddingHorizontal: 24, paddingBottom: 40 },
-  back: { color: "#1a1a2e", fontWeight: "600", marginBottom: 16 },
-  title: { fontSize: 22, fontWeight: "800", color: "#1a1a2e", marginBottom: 16 },
-  paragraph: { fontSize: 15, color: "#333", lineHeight: 22, marginBottom: 14 },
+  container: { flexGrow: 1, backgroundColor: colors.white, paddingTop: 60, paddingHorizontal: 24, paddingBottom: 40 },
+  back: { color: colors.navy, fontWeight: "600", marginBottom: 16 },
+  title: { fontSize: 22, fontWeight: "800", color: colors.navy, marginBottom: 16 },
+  paragraph: { fontSize: 15, color: colors.textPrimary, lineHeight: 22, marginBottom: 14 },
 });

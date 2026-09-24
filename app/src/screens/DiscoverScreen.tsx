@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, ScrollView
 import { getCandidates, swipe } from "../api";
 import { Candidate } from "../types";
 import { formatCardPrice } from "../format";
+import { colors } from "../theme";
 
 export function DiscoverScreen({ onMatched }: { onMatched: (matchId: number) => void }) {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -50,7 +51,7 @@ export function DiscoverScreen({ onMatched }: { onMatched: (matchId: number) => 
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color="#1a1a2e" />
+        <ActivityIndicator size="large" color={colors.navy} />
       </View>
     );
   }
@@ -130,29 +131,36 @@ export function DiscoverScreen({ onMatched }: { onMatched: (matchId: number) => 
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
+  container: { flex: 1, backgroundColor: colors.white },
   center: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24 },
   card: { flex: 1, padding: 20 },
-  mutualBadge: { alignSelf: "flex-start", backgroundColor: "#2ecc71", paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, marginBottom: 10 },
-  mutualBadgeText: { color: "#fff", fontSize: 12, fontWeight: "700" },
-  name: { fontSize: 24, fontWeight: "800", color: "#1a1a2e" },
-  distance: { fontSize: 14, color: "#666", marginTop: 2 },
-  bio: { fontSize: 14, color: "#333", marginTop: 12 },
+  mutualBadge: {
+    alignSelf: "flex-start",
+    backgroundColor: colors.success,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginBottom: 10,
+  },
+  mutualBadgeText: { color: colors.white, fontSize: 12, fontWeight: "700" },
+  name: { fontSize: 24, fontWeight: "800", color: colors.navy },
+  distance: { fontSize: 14, color: colors.textSecondary, marginTop: 2 },
+  bio: { fontSize: 14, color: colors.textPrimary, marginTop: 12 },
   section: { marginTop: 20 },
-  sectionTitle: { fontSize: 13, fontWeight: "700", color: "#666", textTransform: "uppercase", marginBottom: 8 },
+  sectionTitle: { fontSize: 13, fontWeight: "700", color: colors.textSecondary, textTransform: "uppercase", marginBottom: 8 },
   cardRow: { flexDirection: "row", alignItems: "center", marginBottom: 10, gap: 10 },
-  cardImage: { width: 40, height: 56, borderRadius: 4, backgroundColor: "#eee" },
-  cardName: { fontSize: 15, fontWeight: "600", color: "#1a1a2e" },
-  cardPrice: { fontSize: 13, color: "#666" },
-  actionRow: { flexDirection: "row", padding: 16, gap: 12, borderTopWidth: 1, borderTopColor: "#eee" },
+  cardImage: { width: 40, height: 56, borderRadius: 4, backgroundColor: colors.surface },
+  cardName: { fontSize: 15, fontWeight: "600", color: colors.navy },
+  cardPrice: { fontSize: 13, color: colors.textSecondary },
+  actionRow: { flexDirection: "row", padding: 16, gap: 12, borderTopWidth: 1, borderTopColor: colors.border },
   actionButton: { flex: 1, paddingVertical: 16, borderRadius: 12, alignItems: "center" },
-  passButton: { backgroundColor: "#f0f0f3" },
-  likeButton: { backgroundColor: "#1a1a2e" },
-  actionButtonText: { fontSize: 16, fontWeight: "700", color: "#1a1a2e" },
-  likeButtonText: { fontSize: 16, fontWeight: "700", color: "#fff" },
-  emptyTitle: { fontSize: 18, fontWeight: "700", color: "#1a1a2e", textAlign: "center" },
-  emptyBody: { fontSize: 14, color: "#666", textAlign: "center", marginTop: 8 },
-  retryButton: { marginTop: 20, backgroundColor: "#1a1a2e", paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8 },
-  retryButtonText: { color: "#fff", fontWeight: "600" },
-  error: { color: "#c0392b", textAlign: "center" },
+  passButton: { backgroundColor: colors.surface },
+  likeButton: { backgroundColor: colors.gold },
+  actionButtonText: { fontSize: 16, fontWeight: "700", color: colors.textSecondary },
+  likeButtonText: { fontSize: 16, fontWeight: "700", color: colors.navy },
+  emptyTitle: { fontSize: 18, fontWeight: "700", color: colors.navy, textAlign: "center" },
+  emptyBody: { fontSize: 14, color: colors.textSecondary, textAlign: "center", marginTop: 8 },
+  retryButton: { marginTop: 20, backgroundColor: colors.navy, paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8 },
+  retryButtonText: { color: colors.white, fontWeight: "600" },
+  error: { color: colors.error, textAlign: "center" },
 });

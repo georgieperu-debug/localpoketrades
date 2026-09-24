@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { StyleSheet, Text, View, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from "react-native";
 import { getMatches } from "../api";
 import { MatchSummary } from "../types";
+import { colors } from "../theme";
 
 export function MatchesScreen({ onOpenChat }: { onOpenChat: (matchId: number, otherName: string, otherUserId: number) => void }) {
   const [matches, setMatches] = useState<MatchSummary[]>([]);
@@ -26,7 +27,7 @@ export function MatchesScreen({ onOpenChat }: { onOpenChat: (matchId: number, ot
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color="#1a1a2e" />
+        <ActivityIndicator size="large" color={colors.navy} />
       </View>
     );
   }
@@ -47,10 +48,15 @@ export function MatchesScreen({ onOpenChat }: { onOpenChat: (matchId: number, ot
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       renderItem={({ item }) => (
         <TouchableOpacity style={styles.row} onPress={() => onOpenChat(item.id, item.otherUser.displayName, item.otherUser.id)}>
-          <Text style={styles.rowName}>{item.otherUser.displayName}</Text>
-          <Text style={styles.rowMessage} numberOfLines={1}>
-            {item.lastMessage?.body ?? "Say hello — suggest a time and place to meet up."}
-          </Text>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>{item.otherUser.displayName.charAt(0).toUpperCase()}</Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.rowName}>{item.otherUser.displayName}</Text>
+            <Text style={styles.rowMessage} numberOfLines={1}>
+              {item.lastMessage?.body ?? "Say hello — suggest a time and place to meet up."}
+            </Text>
+          </View>
         </TouchableOpacity>
       )}
     />
@@ -59,9 +65,26 @@ export function MatchesScreen({ onOpenChat }: { onOpenChat: (matchId: number, ot
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24 },
-  emptyTitle: { fontSize: 18, fontWeight: "700", color: "#1a1a2e", textAlign: "center" },
-  emptyBody: { fontSize: 14, color: "#666", textAlign: "center", marginTop: 8 },
-  row: { paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: "#eee" },
-  rowName: { fontSize: 16, fontWeight: "700", color: "#1a1a2e" },
-  rowMessage: { fontSize: 14, color: "#666", marginTop: 4 },
+  emptyTitle: { fontSize: 18, fontWeight: "700", color: colors.navy, textAlign: "center" },
+  emptyBody: { fontSize: 14, color: colors.textSecondary, textAlign: "center", marginTop: 8 },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  avatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.navy,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarText: { color: colors.gold, fontSize: 18, fontWeight: "700" },
+  rowName: { fontSize: 16, fontWeight: "700", color: colors.navy },
+  rowMessage: { fontSize: 14, color: colors.textSecondary, marginTop: 2 },
 });

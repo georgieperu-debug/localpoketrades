@@ -7,6 +7,7 @@ import { MatchesScreen } from "./src/screens/MatchesScreen";
 import { ChatScreen } from "./src/screens/ChatScreen";
 import { CardListsScreen } from "./src/screens/CardListsScreen";
 import { ProfileScreen } from "./src/screens/ProfileScreen";
+import { colors } from "./src/theme";
 
 type Tab = "discover" | "matches" | "cards" | "profile";
 type Route = { screen: "tabs" } | { screen: "chat"; matchId: number; otherName: string; otherUserId: number };
@@ -50,6 +51,7 @@ function MainApp() {
         {TABS.map((t) => (
           <TouchableOpacity key={t.key} style={styles.tabItem} onPress={() => setTab(t.key)}>
             <Text style={[styles.tabLabel, tab === t.key && styles.tabLabelActive]}>{t.label}</Text>
+            <View style={[styles.tabIndicator, tab === t.key && styles.tabIndicatorActive]} />
           </TouchableOpacity>
         ))}
       </View>
@@ -63,7 +65,7 @@ function Root() {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color="#1a1a2e" />
+        <ActivityIndicator size="large" color={colors.navy} />
       </View>
     );
   }
@@ -83,9 +85,18 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  center: { flex: 1, alignItems: "center", justifyContent: "center" },
-  tabBar: { flexDirection: "row", borderTopWidth: 1, borderTopColor: "#eee", paddingBottom: 8, paddingTop: 10 },
+  center: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.white },
+  tabBar: {
+    flexDirection: "row",
+    backgroundColor: colors.white,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingBottom: 8,
+    paddingTop: 10,
+  },
   tabItem: { flex: 1, alignItems: "center" },
-  tabLabel: { fontSize: 13, color: "#999", fontWeight: "600" },
-  tabLabelActive: { color: "#1a1a2e" },
+  tabLabel: { fontSize: 13, color: colors.textMuted, fontWeight: "600" },
+  tabLabelActive: { color: colors.navy },
+  tabIndicator: { height: 3, width: 20, borderRadius: 2, marginTop: 6, backgroundColor: "transparent" },
+  tabIndicatorActive: { backgroundColor: colors.gold },
 });

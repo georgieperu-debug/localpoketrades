@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "localpoketrades",
+    "name": "TrainerTrade",
     "slug": "localpoketrades",
     "version": "0.1.0",
     "orientation": "portrait",
@@ -20,7 +20,7 @@
         {
           "image": "./assets/icon.png",
           "resizeMode": "contain",
-          "backgroundColor": "#1a1a2e"
+          "backgroundColor": "#0a1e3c"
         }
       ]
     ]

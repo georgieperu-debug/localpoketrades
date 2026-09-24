@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, FlatList, Image, A
 import { getListings, addListing, removeListing, searchCards } from "../api";
 import { CardListing, CardSummary, ListType } from "../types";
 import { formatCardPrice } from "../format";
+import { colors } from "../theme";
 
 export function CardListsScreen() {
   const [listType, setListType] = useState<ListType>("want");
@@ -92,7 +93,7 @@ export function CardListsScreen() {
       <View style={styles.searchRow}>
         <TextInput style={styles.searchInput} value={query} onChangeText={setQuery} placeholder="Search a card name..." onSubmitEditing={handleSearch} />
         <TouchableOpacity style={styles.searchButton} onPress={handleSearch} disabled={searching}>
-          {searching ? <ActivityIndicator color="#fff" /> : <Text style={styles.searchButtonText}>Search</Text>}
+          {searching ? <ActivityIndicator color={colors.white} /> : <Text style={styles.searchButtonText}>Search</Text>}
         </TouchableOpacity>
       </View>
 
@@ -144,33 +145,33 @@ export function CardListsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff", paddingTop: 50 },
-  tabRow: { flexDirection: "row", marginHorizontal: 16, marginBottom: 12, borderRadius: 10, backgroundColor: "#f0f0f3", padding: 4 },
+  container: { flex: 1, backgroundColor: colors.white, paddingTop: 50 },
+  tabRow: { flexDirection: "row", marginHorizontal: 16, marginBottom: 12, borderRadius: 10, backgroundColor: colors.surface, padding: 4 },
   tab: { flex: 1, paddingVertical: 10, borderRadius: 8, alignItems: "center" },
-  tabActive: { backgroundColor: "#1a1a2e" },
-  tabText: { color: "#666", fontWeight: "600" },
-  tabTextActive: { color: "#fff" },
+  tabActive: { backgroundColor: colors.navy },
+  tabText: { color: colors.textSecondary, fontWeight: "600" },
+  tabTextActive: { color: colors.white },
   searchRow: { flexDirection: "row", marginHorizontal: 16, gap: 8, marginBottom: 8 },
-  searchInput: { flex: 1, borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 10 },
-  searchButton: { backgroundColor: "#1a1a2e", paddingHorizontal: 16, borderRadius: 8, justifyContent: "center" },
-  searchButtonText: { color: "#fff", fontWeight: "600" },
-  resultsList: { maxHeight: 220, marginHorizontal: 16, marginBottom: 8, borderWidth: 1, borderColor: "#eee", borderRadius: 8 },
-  resultRow: { flexDirection: "row", alignItems: "center", padding: 10, gap: 10, borderBottomWidth: 1, borderBottomColor: "#f0f0f3" },
-  addLabel: { color: "#1a1a2e", fontWeight: "700" },
-  listHeading: { marginHorizontal: 16, marginTop: 8, marginBottom: 8, fontWeight: "700", color: "#666", textTransform: "uppercase", fontSize: 12 },
+  searchInput: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: 8, padding: 10, color: colors.textPrimary },
+  searchButton: { backgroundColor: colors.navy, paddingHorizontal: 16, borderRadius: 8, justifyContent: "center" },
+  searchButtonText: { color: colors.white, fontWeight: "600" },
+  resultsList: { maxHeight: 220, marginHorizontal: 16, marginBottom: 8, borderWidth: 1, borderColor: colors.border, borderRadius: 8 },
+  resultRow: { flexDirection: "row", alignItems: "center", padding: 10, gap: 10, borderBottomWidth: 1, borderBottomColor: colors.surface },
+  addLabel: { color: colors.navy, fontWeight: "700" },
+  listHeading: { marginHorizontal: 16, marginTop: 8, marginBottom: 8, fontWeight: "700", color: colors.textSecondary, textTransform: "uppercase", fontSize: 12 },
   listingRow: { flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingVertical: 10, gap: 10 },
-  cardImage: { width: 36, height: 50, borderRadius: 4, backgroundColor: "#eee" },
-  cardName: { fontSize: 15, fontWeight: "600", color: "#1a1a2e" },
-  cardSet: { fontSize: 12, color: "#999" },
-  cardPrice: { fontSize: 12, color: "#666" },
-  removeLabel: { color: "#c0392b", fontWeight: "600" },
-  emptyText: { marginHorizontal: 16, color: "#999", fontSize: 14 },
-  error: { color: "#c0392b", marginHorizontal: 16, marginBottom: 8 },
-  detailContainer: { flex: 1, backgroundColor: "#fff", paddingTop: 50, paddingHorizontal: 24, alignItems: "center" },
+  cardImage: { width: 36, height: 50, borderRadius: 4, backgroundColor: colors.surface },
+  cardName: { fontSize: 15, fontWeight: "600", color: colors.navy },
+  cardSet: { fontSize: 12, color: colors.textMuted },
+  cardPrice: { fontSize: 12, color: colors.textSecondary },
+  removeLabel: { color: colors.error, fontWeight: "600" },
+  emptyText: { marginHorizontal: 16, color: colors.textMuted, fontSize: 14 },
+  error: { color: colors.error, marginHorizontal: 16, marginBottom: 8 },
+  detailContainer: { flex: 1, backgroundColor: colors.white, paddingTop: 50, paddingHorizontal: 24, alignItems: "center" },
   backButton: { alignSelf: "flex-start", marginBottom: 20 },
-  backButtonText: { color: "#1a1a2e", fontWeight: "600", fontSize: 15 },
+  backButtonText: { color: colors.navy, fontWeight: "600", fontSize: 15 },
   detailImage: { width: "100%", aspectRatio: 5 / 7, marginBottom: 20 },
-  detailName: { fontSize: 22, fontWeight: "800", color: "#1a1a2e", textAlign: "center" },
-  detailSet: { fontSize: 15, color: "#999", marginTop: 4, textAlign: "center" },
-  detailPrice: { fontSize: 18, color: "#1a1a2e", fontWeight: "600", marginTop: 12 },
+  detailName: { fontSize: 22, fontWeight: "800", color: colors.navy, textAlign: "center" },
+  detailSet: { fontSize: 15, color: colors.textMuted, marginTop: 4, textAlign: "center" },
+  detailPrice: { fontSize: 18, color: colors.navy, fontWeight: "600", marginTop: 12 },
 });

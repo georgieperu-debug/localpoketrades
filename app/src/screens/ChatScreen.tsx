@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, FlatList, TextInput, TouchableOpacity, Keyboard
 import { getMessages, sendMessage, getTradesForMatch, confirmTrade, rateTrade, reportUser } from "../api";
 import { useAuth } from "../auth/AuthContext";
 import { Message, Trade } from "../types";
+import { colors } from "../theme";
 
 const POLL_MS = 4000;
 
@@ -147,29 +148,38 @@ export function ChatScreen({ matchId, otherName, otherUserId, onBack }: { matchI
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
-  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 16, paddingTop: 50, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: "#eee" },
-  back: { color: "#1a1a2e", fontWeight: "600" },
-  headerName: { fontSize: 16, fontWeight: "700", color: "#1a1a2e" },
-  report: { color: "#c0392b", fontWeight: "600" },
+  container: { flex: 1, backgroundColor: colors.white },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingTop: 50,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  back: { color: colors.navy, fontWeight: "600" },
+  headerName: { fontSize: 16, fontWeight: "700", color: colors.navy },
+  report: { color: colors.error, fontWeight: "600" },
   messages: { padding: 16, gap: 8 },
   bubble: { maxWidth: "80%", padding: 10, borderRadius: 12, marginBottom: 4 },
-  bubbleMine: { backgroundColor: "#1a1a2e", alignSelf: "flex-end" },
-  bubbleTheirs: { backgroundColor: "#f0f0f3", alignSelf: "flex-start" },
-  bubbleTextMine: { color: "#fff" },
-  bubbleTextTheirs: { color: "#1a1a2e" },
-  tradeButton: { backgroundColor: "#1a1a2e", marginHorizontal: 16, marginBottom: 8, paddingVertical: 12, borderRadius: 10, alignItems: "center" },
-  tradeButtonText: { color: "#fff", fontWeight: "700" },
+  bubbleMine: { backgroundColor: colors.navy, alignSelf: "flex-end" },
+  bubbleTheirs: { backgroundColor: colors.surface, alignSelf: "flex-start" },
+  bubbleTextMine: { color: colors.white },
+  bubbleTextTheirs: { color: colors.navy },
+  tradeButton: { backgroundColor: colors.navy, marginHorizontal: 16, marginBottom: 8, paddingVertical: 12, borderRadius: 10, alignItems: "center" },
+  tradeButtonText: { color: colors.white, fontWeight: "700" },
   disabled: { opacity: 0.5 },
-  ratingBox: { marginHorizontal: 16, marginBottom: 8, padding: 12, borderRadius: 10, backgroundColor: "#f0f0f3" },
-  reportBox: { marginHorizontal: 16, marginTop: 8, padding: 12, borderRadius: 10, backgroundColor: "#fdecea" },
-  ratingTitle: { fontWeight: "700", color: "#1a1a2e", marginBottom: 8 },
+  ratingBox: { marginHorizontal: 16, marginBottom: 8, padding: 12, borderRadius: 10, backgroundColor: colors.surface },
+  reportBox: { marginHorizontal: 16, marginTop: 8, padding: 12, borderRadius: 10, backgroundColor: colors.errorBg },
+  ratingTitle: { fontWeight: "700", color: colors.navy, marginBottom: 8 },
   starsRow: { flexDirection: "row", gap: 6, marginBottom: 8 },
-  star: { fontSize: 28, color: "#ccc" },
-  starSelected: { color: "#f5a623" },
-  reviewInput: { backgroundColor: "#fff", borderRadius: 8, padding: 10, minHeight: 44, marginBottom: 8 },
-  inputRow: { flexDirection: "row", padding: 12, gap: 8, borderTopWidth: 1, borderTopColor: "#eee" },
-  input: { flex: 1, borderWidth: 1, borderColor: "#ccc", borderRadius: 20, paddingHorizontal: 14, paddingVertical: 10 },
-  sendButton: { backgroundColor: "#1a1a2e", paddingHorizontal: 16, borderRadius: 20, justifyContent: "center" },
-  sendButtonText: { color: "#fff", fontWeight: "700" },
+  star: { fontSize: 28, color: colors.border },
+  starSelected: { color: colors.gold },
+  reviewInput: { backgroundColor: colors.white, borderRadius: 8, padding: 10, minHeight: 44, marginBottom: 8, borderWidth: 1, borderColor: colors.border },
+  inputRow: { flexDirection: "row", padding: 12, gap: 8, borderTopWidth: 1, borderTopColor: colors.border },
+  input: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: 20, paddingHorizontal: 14, paddingVertical: 10 },
+  sendButton: { backgroundColor: colors.navy, paddingHorizontal: 16, borderRadius: 20, justifyContent: "center" },
+  sendButtonText: { color: colors.white, fontWeight: "700" },
 });

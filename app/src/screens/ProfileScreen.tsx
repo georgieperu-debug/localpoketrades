@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert 
 import { useAuth } from "../auth/AuthContext";
 import { updateMe } from "../api";
 import { HelpArticleScreen } from "./HelpArticleScreen";
+import { colors } from "../theme";
 
 export function ProfileScreen() {
   const { user, signOut, refreshUser } = useAuth();
@@ -57,7 +58,7 @@ export function ProfileScreen() {
       <TouchableOpacity style={styles.helpLink} onPress={() => setHelpSlug("spotting-fake-cards")}>
         <Text style={styles.helpLinkText}>How to spot a fake card</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.helpLink} onPress={() => setHelpSlug("meetup-safety")}>
+      <TouchableOpacity style={[styles.helpLink, styles.helpLinkSecond]} onPress={() => setHelpSlug("meetup-safety")}>
         <Text style={styles.helpLinkText}>Meeting up safely</Text>
       </TouchableOpacity>
 
@@ -69,17 +70,18 @@ export function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flexGrow: 1, backgroundColor: "#fff", paddingTop: 60, paddingHorizontal: 24, paddingBottom: 40 },
-  title: { fontSize: 24, fontWeight: "800", color: "#1a1a2e", marginBottom: 20 },
-  label: { fontSize: 13, color: "#666", marginTop: 14, marginBottom: 6 },
-  input: { borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 12, fontSize: 15 },
+  container: { flexGrow: 1, backgroundColor: colors.white, paddingTop: 60, paddingHorizontal: 24, paddingBottom: 40 },
+  title: { fontSize: 24, fontWeight: "800", color: colors.navy, marginBottom: 20 },
+  label: { fontSize: 13, color: colors.textSecondary, marginTop: 14, marginBottom: 6 },
+  input: { borderWidth: 1, borderColor: colors.border, borderRadius: 8, padding: 12, fontSize: 15, color: colors.textPrimary },
   multiline: { minHeight: 80, textAlignVertical: "top" },
-  error: { color: "#c0392b", marginTop: 12 },
-  saveButton: { backgroundColor: "#1a1a2e", paddingVertical: 14, borderRadius: 10, alignItems: "center", marginTop: 24 },
-  saveButtonText: { color: "#fff", fontWeight: "700", fontSize: 16 },
+  error: { color: colors.error, marginTop: 12 },
+  saveButton: { backgroundColor: colors.navy, paddingVertical: 14, borderRadius: 10, alignItems: "center", marginTop: 24 },
+  saveButtonText: { color: colors.white, fontWeight: "700", fontSize: 16 },
   disabled: { opacity: 0.5 },
   helpLink: { marginTop: 20, alignItems: "center" },
-  helpLinkText: { color: "#1a1a2e", fontWeight: "600", textDecorationLine: "underline" },
+  helpLinkSecond: { marginTop: 10 },
+  helpLinkText: { color: colors.navy, fontWeight: "600", textDecorationLine: "underline" },
   signOutButton: { marginTop: 32, alignItems: "center" },
-  signOutButtonText: { color: "#c0392b", fontWeight: "600" },
+  signOutButtonText: { color: colors.error, fontWeight: "600" },
 });

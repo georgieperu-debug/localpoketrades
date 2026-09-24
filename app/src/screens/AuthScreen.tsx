@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { StyleSheet, Text, TextInput, TouchableOpacity, View, ScrollView, ActivityIndicator } from "react-native";
 import { requestCode, register, login } from "../api";
 import { useAuth } from "../auth/AuthContext";
+import { colors } from "../theme";
 
 type Mode = "signup" | "login";
 
@@ -59,7 +60,7 @@ export function AuthScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>localpoketrades</Text>
+      <Text style={styles.title}>TrainerTrade</Text>
       <Text style={styles.subtitle}>Find local collectors with the cards you want.</Text>
 
       <View style={styles.modeRow}>
@@ -104,7 +105,7 @@ export function AuthScreen() {
 
       {!codeSent ? (
         <TouchableOpacity style={[styles.primaryButton, (!canSendCode || submitting) && styles.disabled]} onPress={handleSendCode} disabled={!canSendCode || submitting}>
-          {submitting ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryButtonText}>Send code</Text>}
+          {submitting ? <ActivityIndicator color={colors.white} /> : <Text style={styles.primaryButtonText}>Send code</Text>}
         </TouchableOpacity>
       ) : (
         <>
@@ -113,7 +114,7 @@ export function AuthScreen() {
           <TextInput style={styles.input} value={code} onChangeText={setCode} keyboardType="number-pad" placeholder="123456" />
 
           <TouchableOpacity style={[styles.primaryButton, (!code || submitting) && styles.disabled]} onPress={handleSubmit} disabled={!code || submitting}>
-            {submitting ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryButtonText}>{mode === "signup" ? "Create account" : "Log in"}</Text>}
+            {submitting ? <ActivityIndicator color={colors.white} /> : <Text style={styles.primaryButtonText}>{mode === "signup" ? "Create account" : "Log in"}</Text>}
           </TouchableOpacity>
         </>
       )}
@@ -124,19 +125,19 @@ export function AuthScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flexGrow: 1, backgroundColor: "#fff", paddingTop: 80, paddingHorizontal: 24, paddingBottom: 40 },
-  title: { fontSize: 28, fontWeight: "800", color: "#1a1a2e" },
-  subtitle: { fontSize: 14, color: "#666", marginTop: 6, marginBottom: 24 },
-  modeRow: { flexDirection: "row", marginBottom: 20, borderRadius: 10, backgroundColor: "#f0f0f3", padding: 4 },
+  container: { flexGrow: 1, backgroundColor: colors.white, paddingTop: 80, paddingHorizontal: 24, paddingBottom: 40 },
+  title: { fontSize: 30, fontWeight: "800", color: colors.navy, letterSpacing: 0.3 },
+  subtitle: { fontSize: 14, color: colors.textSecondary, marginTop: 6, marginBottom: 24 },
+  modeRow: { flexDirection: "row", marginBottom: 20, borderRadius: 10, backgroundColor: colors.surface, padding: 4 },
   modeButton: { flex: 1, paddingVertical: 10, borderRadius: 8, alignItems: "center" },
-  modeButtonActive: { backgroundColor: "#1a1a2e" },
-  modeButtonText: { color: "#666", fontWeight: "600" },
-  modeButtonTextActive: { color: "#fff" },
-  label: { fontSize: 13, color: "#666", marginTop: 14, marginBottom: 6 },
-  hint: { fontSize: 12, color: "#999", marginTop: 4 },
-  input: { borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 12, fontSize: 15 },
-  primaryButton: { backgroundColor: "#1a1a2e", paddingVertical: 14, borderRadius: 10, alignItems: "center", marginTop: 24 },
-  primaryButtonText: { color: "#fff", fontWeight: "700", fontSize: 16 },
+  modeButtonActive: { backgroundColor: colors.navy },
+  modeButtonText: { color: colors.textSecondary, fontWeight: "600" },
+  modeButtonTextActive: { color: colors.white },
+  label: { fontSize: 13, color: colors.textSecondary, marginTop: 14, marginBottom: 6 },
+  hint: { fontSize: 12, color: colors.textMuted, marginTop: 4 },
+  input: { borderWidth: 1, borderColor: colors.border, borderRadius: 8, padding: 12, fontSize: 15, color: colors.textPrimary },
+  primaryButton: { backgroundColor: colors.navy, paddingVertical: 14, borderRadius: 10, alignItems: "center", marginTop: 24 },
+  primaryButtonText: { color: colors.white, fontWeight: "700", fontSize: 16 },
   disabled: { opacity: 0.5 },
-  error: { color: "#c0392b", marginTop: 16, textAlign: "center" },
+  error: { color: colors.error, marginTop: 16, textAlign: "center" },
 });
