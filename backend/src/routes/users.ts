@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { prepare } from "../db";
-import { UserRow } from "../types";
+import { UserRow, CardListingRow } from "../types";
 import { requireAuth, AuthedRequest } from "../middleware/requireAuth";
 import { geocodePostcode, InvalidPostcodeError } from "../services/geo";
 import { issueOtp, verifyOtp } from "../services/otp";
@@ -89,7 +89,24 @@ usersRouter.post("/me/phone/verify", (req: AuthedRequest, res) => {
   res.json({ ok: true });
 });
 
-/** Another user's public profile + their rating summary, e.g. before swiping. */
+function publicListing(row: CardListingRow) {
+  return {
+    cardId: row.card_id,
+    cardName: row.card_name,
+    setName: row.set_name,
+    imageUrl: row.image_url,
+    marketPrice: row.market_price,
+    marketPriceCurrency: row.market_price_currency,
+  };
+}
+
+/**
+ * Another user's public profile: rating summary and their full have/want
+ * lists (not just the overlap Discover shows), so someone can spot a card
+ * worth trading for that the match engine didn't surface. Viewable by any
+ * authenticated user, not just an existing match — same as everything else
+ * this endpoint already returned.
+ */
 usersRouter.get("/:id", (req: AuthedRequest, res) => {
   const user = prepare(`SELECT * FROM users WHERE id = ?`).get(req.params.id) as UserRow | undefined;
   if (!user) return res.status(404).json({ error: "Not found" });
@@ -97,5 +114,16 @@ usersRouter.get("/:id", (req: AuthedRequest, res) => {
   const ratings = prepare(`SELECT AVG(stars) as avg, COUNT(*) as count FROM ratings WHERE ratee_id = ?`)
     .get(user.id) as { avg: number | null; count: number };
 
-  res.json({ ...publicUser(user), ratingAverage: ratings.avg, ratingCount: ratings.count });
+  const haveList = (
+    prepare(`SELECT * FROM card_listings WHERE user_id = ? AND list_type = 'have' ORDER BY added_at DESC`).all(
+      user.id
+    ) as CardListingRow[]
+  ).map(publicListing);
+  const wantList = (
+    prepare(`SELECT * FROM card_listings WHERE user_id = ? AND list_type = 'want' ORDER BY added_at DESC`).all(
+      user.id
+    ) as CardListingRow[]
+  ).map(publicListing);
+
+  res.json({ ...publicUser(user), ratingAverage: ratings.avg, ratingCount: ratings.count, haveList, wantList });
 });

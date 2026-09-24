@@ -9,12 +9,23 @@ import { API_BASE_URL } from "../config";
 
 const POLL_MS = 4000;
 
-export function ChatScreen({ matchId, otherName, otherUserId, onBack }: { matchId: number; otherName: string; otherUserId: number; onBack: () => void }) {
+export function ChatScreen({
+  matchId,
+  otherName,
+  otherUserId,
+  onBack,
+  onViewProfile,
+}: {
+  matchId: number;
+  otherName: string;
+  otherUserId: number;
+  onBack: () => void;
+  onViewProfile: () => void;
+}) {
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [body, setBody] = useState("");
   const [trade, setTrade] = useState<Trade | null>(null);
-  const [rated, setRated] = useState(false);
   const [selectedStars, setSelectedStars] = useState(0);
   const [review, setReview] = useState("");
   const [showReportBox, setShowReportBox] = useState(false);
@@ -64,7 +75,7 @@ export function ChatScreen({ matchId, otherName, otherUserId, onBack }: { matchI
   const handleRate = async () => {
     if (!trade || selectedStars === 0) return;
     await rateTrade(trade.id, selectedStars, review.trim() || undefined);
-    setRated(true);
+    await loadTrade();
   };
 
   const sendPickedImage = async (uri: string) => {
@@ -116,7 +127,12 @@ export function ChatScreen({ matchId, otherName, otherUserId, onBack }: { matchI
   };
 
   const tradeComplete = !!trade?.completed_at;
-  const iConfirmed = trade && user && (trade.confirmed_by_a || trade.confirmed_by_b);
+  // Matches always store the lower user id as user_a (see backend
+  // swipes.ts), so this tells us which confirmed_by_* column is "me"
+  // without needing the match row itself.
+  const iAmUserA = !!user && user.id < otherUserId;
+  const iConfirmed = !!trade && (iAmUserA ? !!trade.confirmed_by_a : !!trade.confirmed_by_b);
+  const rated = !!trade?.myRating;
 
   if (viewingImageUrl) {
     return (
@@ -130,12 +146,14 @@ export function ChatScreen({ matchId, otherName, otherUserId, onBack }: { matchI
   }
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "padding" : undefined}>
+    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <View style={styles.header}>
         <TouchableOpacity onPress={onBack}>
           <Text style={styles.back}>{"< Matches"}</Text>
         </TouchableOpacity>
-        <Text style={styles.headerName}>{otherName}</Text>
+        <TouchableOpacity onPress={onViewProfile}>
+          <Text style={styles.headerName}>{otherName}</Text>
+        </TouchableOpacity>
         <TouchableOpacity onPress={() => setShowReportBox((v) => !v)}>
           <Text style={styles.report}>Report</Text>
         </TouchableOpacity>
@@ -176,7 +194,7 @@ export function ChatScreen({ matchId, otherName, otherUserId, onBack }: { matchI
       />
 
       {!tradeComplete && (
-        <TouchableOpacity style={styles.tradeButton} onPress={handleConfirmTrade}>
+        <TouchableOpacity style={[styles.tradeButton, iConfirmed && styles.disabled]} onPress={handleConfirmTrade} disabled={iConfirmed}>
           <Text style={styles.tradeButtonText}>{iConfirmed ? "Waiting on the other person…" : "Mark trade complete"}</Text>
         </TouchableOpacity>
       )}
@@ -195,6 +213,16 @@ export function ChatScreen({ matchId, otherName, otherUserId, onBack }: { matchI
           <TouchableOpacity style={[styles.tradeButton, selectedStars === 0 && styles.disabled]} onPress={handleRate} disabled={selectedStars === 0}>
             <Text style={styles.tradeButtonText}>Submit rating</Text>
           </TouchableOpacity>
+        </View>
+      )}
+
+      {tradeComplete && rated && trade?.myRating && (
+        <View style={styles.ratingBox}>
+          <Text style={styles.ratingTitle}>
+            You rated {otherName}: {"★".repeat(trade.myRating.stars)}
+            {"☆".repeat(5 - trade.myRating.stars)}
+          </Text>
+          {!!trade.myRating.review && <Text style={styles.bubbleTextTheirs}>"{trade.myRating.review}"</Text>}
         </View>
       )}
 

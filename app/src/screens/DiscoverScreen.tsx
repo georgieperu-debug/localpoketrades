@@ -5,7 +5,13 @@ import { Candidate } from "../types";
 import { formatCardPrice } from "../format";
 import { colors } from "../theme";
 
-export function DiscoverScreen({ onMatched }: { onMatched: (matchId: number) => void }) {
+export function DiscoverScreen({
+  onMatched,
+  onViewProfile,
+}: {
+  onMatched: (matchId: number) => void;
+  onViewProfile: (userId: number) => void;
+}) {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [index, setIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -86,6 +92,9 @@ export function DiscoverScreen({ onMatched }: { onMatched: (matchId: number) => 
         <Text style={styles.name}>{current.user.display_name}</Text>
         <Text style={styles.distance}>{current.distanceMiles} miles away</Text>
         {current.user.bio && <Text style={styles.bio}>{current.user.bio}</Text>}
+        <TouchableOpacity onPress={() => onViewProfile(current.user.id)}>
+          <Text style={styles.profileLink}>View full profile & rating</Text>
+        </TouchableOpacity>
 
         {current.theyHaveIWant.length > 0 && (
           <View style={styles.section}>
@@ -146,6 +155,7 @@ const styles = StyleSheet.create({
   name: { fontSize: 24, fontWeight: "800", color: colors.navy },
   distance: { fontSize: 14, color: colors.textSecondary, marginTop: 2 },
   bio: { fontSize: 14, color: colors.textPrimary, marginTop: 12 },
+  profileLink: { fontSize: 13, color: colors.navy, fontWeight: "600", textDecorationLine: "underline", marginTop: 10 },
   section: { marginTop: 20 },
   sectionTitle: { fontSize: 13, fontWeight: "700", color: colors.textSecondary, textTransform: "uppercase", marginBottom: 8 },
   cardRow: { flexDirection: "row", alignItems: "center", marginBottom: 10, gap: 10 },

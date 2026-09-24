@@ -8,10 +8,14 @@ import { MatchesScreen } from "./src/screens/MatchesScreen";
 import { ChatScreen } from "./src/screens/ChatScreen";
 import { CardListsScreen } from "./src/screens/CardListsScreen";
 import { ProfileScreen } from "./src/screens/ProfileScreen";
+import { PublicProfileScreen } from "./src/screens/PublicProfileScreen";
 import { colors } from "./src/theme";
 
 type Tab = "discover" | "matches" | "cards" | "profile";
-type Route = { screen: "tabs" } | { screen: "chat"; matchId: number; otherName: string; otherUserId: number };
+type Route =
+  | { screen: "tabs" }
+  | { screen: "chat"; matchId: number; otherName: string; otherUserId: number }
+  | { screen: "publicProfile"; userId: number; returnTo: Route };
 
 const TABS: { key: Tab; label: string }[] = [
   { key: "discover", label: "Discover" },
@@ -24,6 +28,10 @@ function MainApp() {
   const [tab, setTab] = useState<Tab>("discover");
   const [route, setRoute] = useState<Route>({ screen: "tabs" });
 
+  if (route.screen === "publicProfile") {
+    return <PublicProfileScreen userId={route.userId} onBack={() => setRoute(route.returnTo)} />;
+  }
+
   if (route.screen === "chat") {
     return (
       <ChatScreen
@@ -31,6 +39,7 @@ function MainApp() {
         otherName={route.otherName}
         otherUserId={route.otherUserId}
         onBack={() => setRoute({ screen: "tabs" })}
+        onViewProfile={() => setRoute({ screen: "publicProfile", userId: route.otherUserId, returnTo: route })}
       />
     );
   }
@@ -38,7 +47,12 @@ function MainApp() {
   return (
     <View style={{ flex: 1 }}>
       <View style={{ flex: 1 }}>
-        {tab === "discover" && <DiscoverScreen onMatched={(matchId) => setTab("matches")} />}
+        {tab === "discover" && (
+          <DiscoverScreen
+            onMatched={(matchId) => setTab("matches")}
+            onViewProfile={(userId) => setRoute({ screen: "publicProfile", userId, returnTo: { screen: "tabs" } })}
+          />
+        )}
         {tab === "matches" && (
           <MatchesScreen
             onOpenChat={(matchId, otherName, otherUserId) => setRoute({ screen: "chat", matchId, otherName, otherUserId })}

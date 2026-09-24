@@ -39,10 +39,25 @@ tradesRouter.post("/matches/:matchId/confirm", (req: AuthedRequest, res) => {
   res.json(trade);
 });
 
+/**
+ * Includes whether the current user has already rated each trade
+ * (myRating), so the app doesn't just rely on its own in-memory state to
+ * decide whether to show the rating form again — that's the whole reason
+ * it was showing "rate them" again after a fresh reopen/reload despite the
+ * rating already existing server-side.
+ */
 tradesRouter.get("/matches/:matchId", (req: AuthedRequest, res) => {
   const match = prepare(`SELECT * FROM matches WHERE id = ?`).get(req.params.matchId) as MatchRow | undefined;
   if (!assertParticipant(match, req.userId!)) return res.status(404).json({ error: "Not found" });
 
-  const trades = prepare(`SELECT * FROM trades WHERE match_id = ? ORDER BY created_at DESC`).all(match.id);
-  res.json(trades);
+  const trades = prepare(`SELECT * FROM trades WHERE match_id = ? ORDER BY created_at DESC`).all(match.id) as TradeRow[];
+  const withMyRating = trades.map((trade) => {
+    const myRating = prepare(`SELECT stars, review FROM ratings WHERE trade_id = ? AND rater_id = ?`).get(
+      trade.id,
+      req.userId
+    ) as { stars: number; review: string | null } | undefined;
+    return { ...trade, myRating: myRating ?? null };
+  });
+
+  res.json(withMyRating);
 });

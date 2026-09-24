@@ -8,11 +8,6 @@ export interface User {
   phoneVerified: boolean;
 }
 
-export interface PublicUser extends User {
-  ratingAverage: number | null;
-  ratingCount: number;
-}
-
 export type ListType = "have" | "want";
 
 export interface CardListing {
@@ -47,6 +42,13 @@ export interface OverlapCard {
   marketPriceCurrency: string | null;
 }
 
+export interface PublicUser extends User {
+  ratingAverage: number | null;
+  ratingCount: number;
+  haveList: OverlapCard[];
+  wantList: OverlapCard[];
+}
+
 export interface Candidate {
   user: { id: number; display_name: string; bio: string | null };
   distanceMiles: number;
@@ -78,6 +80,7 @@ export interface Trade {
   confirmed_by_b: 0 | 1;
   completed_at: string | null;
   created_at: string;
+  myRating: { stars: number; review: string | null } | null;
 }
 
 export interface HelpArticle {
